@@ -395,7 +395,7 @@ let cursor=startOfWeek(new Date());
 /* =========================================================
    SYNC ENGINE — shared Google Sheet via Apps Script
    ---------------------------------------------------------
-   Paste the Web App URL from your Apps Script deployment
+   Paste the  App URL from your Apps Script deployment
    between the quotes below. Leave it empty to run this file
    in local-only mode (data stays in this browser).
    ========================================================= */
@@ -520,7 +520,7 @@ function setStatus(s){
 }
 
 /* ---------- date helpers ---------- */
-function ds(d){return d.toISOString().slice(0,10);}
+function ds(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
 function pd(s){const[y,m,dd]=s.split('-').map(Number);return new Date(y,m-1,dd);}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;} // Monday start
@@ -893,12 +893,7 @@ function openBreakModal(it){
       <label class="field">Label<input type="text" id="bk_label" value="${escapeHtml(b.label||'Break')}"></label>
       <div class="row">
         <label class="field">Start<input type="time" id="bk_start" value="${fmtTime(b.startMin)}" step="1800"></label>
-        <label class="field">Duration<select id="bk_dur">
-          <option value="30" ${b.durationMin===30?'selected':''}>30 min</option>
-          <option value="60" ${b.durationMin===60?'selected':''}>1 hour</option>
-          <option value="90" ${b.durationMin===90?'selected':''}>1.5 hours</option>
-          <option value="120" ${b.durationMin===120?'selected':''}>2 hours</option>
-        </select></label>
+        <label class="field">End<input type="time" id="bk_end" value="${fmtTime(b.startMin+b.durationMin)}" step="1800"></label>
       </div>
     </div>
     <div class="modal-foot">
@@ -908,14 +903,22 @@ function openBreakModal(it){
       <button class="btn" onclick="saveBreakEdit('${b.id}')">Save</button>
     </div>`);
 }
+function hmToMin(v){const[h,m]=v.split(':').map(Number);return h*60+m;}
+function readBreakTimes(){
+  const s=document.getElementById('bk_start').value, e=document.getElementById('bk_end').value;
+  if(!s||!e){toast('Set a start and end');return null;}
+  let start=Math.round(hmToMin(s)/30)*30, end=Math.round(hmToMin(e)/30)*30;
+  if(end<=start){toast('End must be after start');return null;}
+  if(start<openMin()||end>state.coach.close*60){toast('Break must sit inside the working hours');return null;}
+  return {start,dur:end-start};
+}
 function saveBreakEdit(id){
   if(!requireUser())return;
   const b=state.breaks.find(x=>x.id===id);if(!b)return;
-  const[h,m]=document.getElementById('bk_start').value.split(':').map(Number);
-  b.startMin=h*60+m;
-  b.durationMin=parseInt(document.getElementById('bk_dur').value,10);
+  const t=readBreakTimes();if(!t)return;
+  b.startMin=t.start;b.durationMin=t.dur;
   b.label=document.getElementById('bk_label').value.trim()||'Break';
-  logEvent(`Updated break "${b.label}"`);
+  logEvent(`Updated break "${b.label}" (${fmtTime(t.start)}–${fmtTime(t.start+t.dur)})`);
   save();closeModal();renderSchedule();toast('Saved');
 }
 function deleteBreak(id){
@@ -934,12 +937,7 @@ function openAddBreakModal(){
       <label class="field">Label<input type="text" id="bk_label" value="Lunch" placeholder="e.g. Lunch, Admin"></label>
       <div class="row">
         <label class="field">Start<input type="time" id="bk_start" value="13:00" step="1800"></label>
-        <label class="field">Duration<select id="bk_dur">
-          <option value="30">30 min</option>
-          <option value="60" selected>1 hour</option>
-          <option value="90">1.5 hours</option>
-          <option value="120">2 hours</option>
-        </select></label>
+        <label class="field">End<input type="time" id="bk_end" value="14:00" step="1800"></label>
       </div>
       <label class="field">Repeat
         <select id="bk_repeat">
@@ -967,9 +965,8 @@ function openAddBreakModal(){
 function confirmBreak(){
   if(!requireUser())return;
   const label=document.getElementById('bk_label').value.trim()||'Break';
-  const[h,m]=document.getElementById('bk_start').value.split(':').map(Number);
-  const start=h*60+m;
-  const dur=parseInt(document.getElementById('bk_dur').value,10);
+  const t=readBreakTimes();if(!t)return;
+  const start=t.start, dur=t.dur;
   const rep=document.getElementById('bk_repeat').value;
   const base=ds(new Date());
   if(rep==='daily'){
