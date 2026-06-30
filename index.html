@@ -58,6 +58,8 @@
   }
   .user-pick select option{color:var(--ink)}
   .sync-pill{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--foam);background:var(--bronze);padding:4px 11px;border-radius:20px;font-weight:400}
+  .sync-btn{background:rgba(255,255,255,.12);color:var(--foam);border:1px solid rgba(255,255,255,.3);border-radius:var(--r);padding:6px 12px;font-size:12px}
+  .sync-btn:hover{background:rgba(255,255,255,.2)}
 
   /* ---------- tabs ---------- */
   nav.tabs{
@@ -189,6 +191,10 @@
   .avail-day .ad-date{min-width:150px;font-weight:500;color:var(--mple);font-size:13px}
   .avail-chip{display:inline-block;background:var(--foam);border:1px solid var(--shell);color:var(--mple);border-radius:20px;padding:3px 11px;font-size:12px;margin:2px 4px 2px 0;font-variant-numeric:tabular-nums}
   .avail-none{color:var(--bronze);font-size:12.5px;font-style:italic}
+  .season-pill{font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;color:var(--foam);font-weight:500;white-space:nowrap}
+  .season-pill.summer{background:#B8862A}
+  .season-pill.winter{background:#2C4A6E}
+  .season-pill .sub{font-weight:300;text-transform:none;opacity:.85;margin-left:6px;letter-spacing:0}
   .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-70);margin-top:10px;align-items:center}
   .legend span{display:inline-flex;align-items:center;gap:6px}
   .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
@@ -209,6 +215,7 @@
     <span class="sub">Racket Club · Coach Schedule</span>
   </div>
   <div class="spacer"></div>
+  <button id="syncBtn" class="sync-btn" title="Save and refresh from the cloud">Sync now</button>
   <span id="syncStatus" class="sync-pill">Local only</span>
   <div class="user-pick">
     <span>Signed in as</span>
@@ -219,6 +226,7 @@
 <nav class="tabs">
   <button data-tab="schedule" class="active">Schedule</button>
   <button data-tab="clients">Clients</button>
+  <button data-tab="waitlist">Waiting list <span id="waitBadge"></span></button>
   <button data-tab="analytics">Analytics</button>
   <button data-tab="notes">Notes <span id="noteBadge"></span></button>
   <button data-tab="activity">Activity</button>
@@ -239,6 +247,7 @@
       <span class="nav-date" id="navDate"></span>
       <input type="date" id="jumpDate">
       <button class="btn bronze sm" id="addBreakBtn">+ Break</button>
+      <span id="seasonPill" class="season-pill"></span>
       <div class="spacer" style="flex:1"></div>
       <label class="chk"><input type="checkbox" id="showOpen" checked> Show open slots</label>
     </div>
@@ -272,6 +281,17 @@
     <div class="panel"><table><thead><tr>
       <th>Name</th><th>Type</th><th>Contact</th><th>Weekly slots</th><th>Holidays</th><th></th>
     </tr></thead><tbody id="clientRows"></tbody></table></div>
+  </section>
+
+  <!-- WAITING LIST -->
+  <section id="view-waitlist" class="view">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div><h2 class="section">Waiting list</h2><p class="muted">People who want a lesson when there's no slot. When something frees up, hit Book and pick the open slot.</p></div>
+      <button class="btn" id="addWaitBtn">+ Add to waiting list</button>
+    </div>
+    <div class="panel"><table><thead><tr>
+      <th>Name</th><th>Contact</th><th>Wants</th><th>Added</th><th></th>
+    </tr></thead><tbody id="waitRows"></tbody></table></div>
   </section>
 
   <!-- ANALYTICS -->
@@ -325,6 +345,15 @@
       <button class="btn" id="saveSettings">Save settings</button>
     </div>
     <div class="panel" style="max-width:560px">
+      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Summer &amp; winter</h3>
+      <p class="muted">Tap a month to flip it between summer and winter. Lessons and breaks are tagged to one season, so the schedule automatically shows the right version for whatever date you're looking at. Working hours above are shared across both.</p>
+      <div id="seasonMonths" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:12px"></div>
+      <div class="legend" style="margin-top:12px">
+        <span><i class="sw" style="background:#B8862A"></i> Summer</span>
+        <span><i class="sw" style="background:#2C4A6E"></i> Winter</span>
+      </div>
+    </div>
+    <div class="panel" style="max-width:560px">
       <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Staff at the desk</h3>
       <p class="muted">These names appear in the "signed in as" picker and get attached to every change.</p>
       <div class="row" style="margin:12px 0">
@@ -364,6 +393,7 @@ const DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Sat
 
 const defaultState=()=>({
   coach:{name:'Head Tennis Coach', open:8, close:20, days:[1,2,3,4,5,6]}, // Mon-Sat
+  seasons:{summerMonths:[4,5,6,7,8,9,10]}, // months counted as summer; the rest are winter
   staff:['Reception'],
   currentUser:'Reception',
   clients:[],
@@ -373,8 +403,16 @@ const defaultState=()=>({
   holidays:[],
   breaks:[],
   notes:[],
+  waitlist:[],
   log:[]
 });
+
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function seasonForDate(dateStr){
+  const month=pd(dateStr).getMonth()+1;
+  return ((state.seasons&&state.seasons.summerMonths)||[]).includes(month)?'summer':'winter';
+}
+function activeSeason(){return seasonForDate(ds(cursor));}
 
 /* curated client palette — deep, muted tones that sit with Mple blue + bronze */
 const PALETTE=['#003087','#8E7A6B','#2D5D3A','#6B4E71','#A14334','#1F6F78','#8A6D1E','#455A7A','#7A1F2B','#4A6B2A','#5A5550','#2C4A6E'];
@@ -395,13 +433,13 @@ let cursor=startOfWeek(new Date());
 /* =========================================================
    SYNC ENGINE — shared Google Sheet via Apps Script
    ---------------------------------------------------------
-   Paste the  App URL from your Apps Script deployment
+   Paste the Web App URL from your Apps Script deployment
    between the quotes below. Leave it empty to run this file
    in local-only mode (data stays in this browser).
    ========================================================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbxQo07jqtXeapUGnzGqZODKnoz5znRmeErji8UYdXAbIahde6u9FbTuOK2JZUgjM2Rz/exec";   // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
+const API_URL = "https://script.google.com/macros/s/AKfycbwESJ3Dx2LAhU5NkIX6dMDpUpYdJ1Zj8CobhpNPKasYKSM7hrsEzOR7HGPftE5OuvE/exec";   // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
 
-const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','log'];
+const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','waitlist','log'];
 let lastSynced=null;       // baseline snapshot for computing deltas
 let pending=0;             // in-flight writes
 let dirty=false;
@@ -409,7 +447,7 @@ let pushTimer=null;
 const USER_KEY='ah_racket_user';
 
 function clone(o){return JSON.parse(JSON.stringify(o));}
-function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s;}
+function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff),seasons:clone(state.seasons)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s;}
 
 /* ---- local cache (instant load + offline fallback) ---- */
 function loadCache(){
@@ -424,11 +462,12 @@ function cacheLocal(){
 
 /* ---- the one function every mutation already calls ---- */
 function save(){
-  cacheLocal();
+  cacheLocal();                       // instant local save — never blocks the UI
   if(!API_URL)return;                 // local-only mode
   dirty=true;
+  setStatus('pending');
   clearTimeout(pushTimer);
-  pushTimer=setTimeout(flush,400);    // debounce bursts (e.g. rebuilding slots)
+  pushTimer=setTimeout(flush,1500);   // push to the Sheet 1.5s after you stop
 }
 
 /* ---- network ---- */
@@ -452,6 +491,7 @@ function labelFor(t,r){
     if(t==='holidays')return clientName(r.clientId)+' · '+r.start+'→'+r.end;
     if(t==='breaks')return (r.label||'Break')+' · '+(r.recurring?DOW[r.weekday]:r.date);
     if(t==='notes')return r.author+': '+(r.text||'').slice(0,40);
+    if(t==='waitlist')return clientName(r.clientId)+(r.note?' · '+r.note.slice(0,30):'');
     if(t==='log')return (r.text||'').slice(0,50);
   }catch(e){}
   return r.id;
@@ -470,12 +510,13 @@ function buildOps(){
   });
   if(JSON.stringify(base.coach)!==JSON.stringify(state.coach))ops.push({type:'meta',key:'coach',data:state.coach});
   if(JSON.stringify(base.staff)!==JSON.stringify(state.staff))ops.push({type:'meta',key:'staff',data:state.staff});
+  if(JSON.stringify(base.seasons)!==JSON.stringify(state.seasons))ops.push({type:'meta',key:'seasons',data:state.seasons});
   return ops;
 }
 async function flush(){
   if(!dirty||!API_URL)return;
   const ops=buildOps();
-  if(!ops.length){dirty=false;return;}
+  if(!ops.length){dirty=false;setStatus('ok');return;}
   pending++;setStatus('saving');
   try{
     await api('write',{ops});
@@ -484,37 +525,54 @@ async function flush(){
     setStatus('ok');
   }catch(e){
     setStatus('offline');
-    setTimeout(()=>{dirty=true;flush();},3000); // retry
+    setTimeout(()=>{if(dirty)flush();},4000); // quiet retry
   }finally{pending--;}
 }
-async function pullAll(silent){
-  if(!API_URL)return;
-  if(pending>0)return;
-  if(overlay.classList.contains('open'))return; // don't yank UI mid-edit
-  if(dirty)return;                               // don't overwrite unsaved local changes
+async function pullAll(){
+  if(!API_URL)return false;
   try{
-    if(!silent)setStatus('saving');
     const data=await api('read',{});
     const cu=state.currentUser;
     TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);
     if(data.coach)state.coach=data.coach;
     if(data.staff)state.staff=data.staff;
+    if(data.seasons)state.seasons=data.seasons;
     state.currentUser=cu||(state.staff[0]||'');
     lastSynced=snapshot();
     cacheLocal();
     renderAll();
     setStatus('ok');
-  }catch(e){setStatus('offline');}
+    return true;
+  }catch(e){setStatus('offline');return false;}
+}
+/* manual refresh button: save anything pending, then pull the latest */
+async function syncNow(){
+  if(!API_URL){toast('Local only — no cloud configured');return;}
+  setStatus('saving');
+  await flush();
+  const ok=await pullAll();
+  toast(ok?'Up to date':'Could not reach the cloud');
+}
+/* on tab close / hide: make sure the last change reaches the Sheet */
+function beaconFlush(){
+  if(!API_URL||!dirty)return;
+  const ops=buildOps();
+  if(!ops.length)return;
+  try{
+    navigator.sendBeacon(API_URL,new Blob([JSON.stringify({action:'write',ops})],{type:'text/plain;charset=UTF-8'}));
+    lastSynced=snapshot();dirty=false;cacheLocal();
+  }catch(e){}
 }
 function startSync(){
   if(!API_URL){setStatus('local');return;}
-  pullAll();
-  setInterval(()=>pullAll(true),20000);          // pick up others' changes
-  window.addEventListener('focus',()=>pullAll(true));
+  setStatus('saving');
+  pullAll();   // one pull on open, in case another machine was used last
+  window.addEventListener('beforeunload',beaconFlush);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')beaconFlush();});
 }
 function setStatus(s){
   const el=document.getElementById('syncStatus');if(!el)return;
-  const map={ok:['Live','#2D5D3A'],saving:['Syncing…','#8A6D1E'],offline:['Offline','#8a2a22'],local:['Local only','#8E7A6B']};
+  const map={ok:['Saved','#2D5D3A'],pending:['Unsaved','#8A6D1E'],saving:['Saving…','#8A6D1E'],offline:['Offline','#8a2a22'],local:['Local only','#8E7A6B']};
   const[txt,col]=map[s]||map.local;
   el.textContent=txt;el.style.background=col;
 }
@@ -539,9 +597,11 @@ function awayClients(dateStr){return state.holidays.filter(h=>dateStr>=h.start&&
 /* ---------- build instances for a date ---------- */
 function getInstances(dateStr){
   const wd=pd(dateStr).getDay();
+  const season=seasonForDate(dateStr);
   const out=[];
   state.regulars.forEach(r=>{
     if(r.weekday!==wd)return;
+    if(r.season&&r.season!==season)return; // season-specific slot (no season = both)
     if(dateStr<r.startDate)return;
     if(r.endDate&&dateStr>r.endDate)return;
     if(isOnHoliday(r.clientId,dateStr))return;
@@ -559,6 +619,7 @@ function getInstances(dateStr){
     out.push({kind:'oneoff',oneoffId:o.id,clientId:o.clientId,date:dateStr,startMin:o.startMin,durationMin:o.durationMin,note:o.note});
   });
   (state.breaks||[]).forEach(b=>{
+    if(b.season&&b.season!==season)return; // no season = applies all year
     if(b.recurring){
       if(b.weekday!==wd)return;
       if(b.startDate&&dateStr<b.startDate)return;
@@ -605,9 +666,10 @@ function renderSchedule(){
   grid.style.gridTemplateColumns=`52px repeat(${days.length}, 1fr)`;
   // rows: 1 header + nb
   grid.innerHTML='';
+  const frag=document.createDocumentFragment();
 
   // header corner
-  const corner=document.createElement('div');corner.className='corner';corner.style.gridColumn='1';corner.style.gridRow='1';grid.appendChild(corner);
+  const corner=document.createElement('div');corner.className='corner';corner.style.gridColumn='1';corner.style.gridRow='1';frag.appendChild(corner);
 
   const today=ds(new Date());
   days.forEach((d,ci)=>{
@@ -617,7 +679,7 @@ function renderSchedule(){
     const away=awayClients(ds(d));
     h.innerHTML=`<div class="dow">${DOW[d.getDay()]}</div><div class="dnum">${d.getDate()} ${d.toLocaleDateString(undefined,{month:'short'})}</div>`
       +(away.length?`<div class="away">Away: ${away.join(', ')}</div>`:'');
-    grid.appendChild(h);
+    frag.appendChild(h);
   });
 
   // time labels
@@ -627,7 +689,7 @@ function renderSchedule(){
     lab.className='time-label'+(min%60===0?' hour':'');
     lab.style.gridColumn='1';lab.style.gridRow=(b+2);
     lab.textContent=min%60===0?fmtTime(min):'';
-    grid.appendChild(lab);
+    frag.appendChild(lab);
   }
 
   const showOpen=document.getElementById('showOpen').checked;
@@ -651,7 +713,7 @@ function renderSchedule(){
         el.innerHTML=`<div class="bname">${escapeHtml(it.label)}</div>`
           +`<div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`;
         el.addEventListener('click',()=>openBreakModal(it));
-        grid.appendChild(el);
+        frag.appendChild(el);
         return;
       }
       const col=(c&&c.color)||'#003087';
@@ -666,49 +728,50 @@ function renderSchedule(){
         +(tag?`<div class="btag">${tag}</div>`:'');
       el.addEventListener('click',()=>openBookingModal(it));
       el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify(it));dragData=it;});
-      grid.appendChild(el);
+      frag.appendChild(el);
     });
-    // empty slots + open-run labels
+    // empty slots (covered blocks are left out entirely) + open-run labels
     let run=0,runStart=0;
     for(let b=0;b<nb;b++){
       const min=openMin()+b*30;
-      const slot=document.createElement('div');
-      slot.className='slot'+(min%60===0?' hour':'');
-      slot.style.gridColumn=(ci+2);slot.style.gridRow=(b+2);
-      if(covered[b]){slot.style.visibility='hidden';slot.style.pointerEvents='none';}
-      else{
+      if(!covered[b]){
+        const slot=document.createElement('div');
+        slot.className='slot'+(min%60===0?' hour':'');
+        slot.style.gridColumn=(ci+2);slot.style.gridRow=(b+2);
         slot.addEventListener('click',()=>openAddModal(dateStr,min));
         slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover');});
         slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'));
         slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');handleDrop(dateStr,min);});
+        frag.appendChild(slot);
+        if(run===0)runStart=b;run++;
       }
-      grid.appendChild(slot);
-      // open-run accounting
-      if(showOpen){
-        if(!covered[b]){if(run===0)runStart=b;run++;}
-        if(covered[b]||b===nb-1){
-          const len=(!covered[b]&&b===nb-1)?run:run;
-          if(run>=2){ // >=60 min free
-            const startMinR=openMin()+runStart*30;
-            const lbl=document.createElement('div');
-            lbl.className='open-run';
-            lbl.textContent=`Open ${run*30>=60?(run/2)+'h':run*30+'m'}`;
-            // attach to the first slot of the run via absolute pos: place a marker cell
-            const marker=document.createElement('div');
-            marker.style.gridColumn=(ci+2);marker.style.gridRow=(runStart+2);
-            marker.style.position='relative';marker.style.pointerEvents='none';
-            marker.appendChild(lbl);
-            grid.appendChild(marker);
-          }
-          run=0;
+      if(covered[b]||b===nb-1){
+        if(showOpen&&run>=2){
+          const lbl=document.createElement('div');lbl.className='open-run';
+          lbl.textContent=`Open ${run/2}h`;
+          const marker=document.createElement('div');
+          marker.style.gridColumn=(ci+2);marker.style.gridRow=(runStart+2);
+          marker.style.position='relative';marker.style.pointerEvents='none';
+          marker.appendChild(lbl);frag.appendChild(marker);
         }
+        run=0;
       }
     }
   });
 
+  grid.appendChild(frag);
+
   document.getElementById('navDate').textContent = view==='week'
     ? `${cursor.toLocaleDateString(undefined,{day:'numeric',month:'short'})} – ${addDays(cursor,6).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}`
     : cursor.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const sp=document.getElementById('seasonPill');
+  if(sp){
+    const s0=seasonForDate(ds(days[0])), s1=seasonForDate(ds(days[days.length-1]));
+    const s=s0;
+    sp.className='season-pill '+s;
+    sp.innerHTML=(s==='summer'?'Summer schedule':'Winter schedule')+(s0!==s1?'<span class="sub">changes midweek</span>':'');
+  }
 
   renderAvailability(days);
 }
@@ -781,23 +844,28 @@ function clientOptions(sel){
     .map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${c.name}${c.type==='casual'?' (casual)':''}</option>`).join('');
 }
 
+let prefill=null; // {clientId, waitId} when booking someone off the waiting list
+
 function openAddModal(dateStr,min){
   if(!requireUser())return;
   if(!state.clients.length){toast('Add a client first');switchTab('clients');return;}
+  const season=seasonForDate(dateStr);
+  const pre=prefill;
   openModal(`
     <div class="modal-head">Book a lesson<button class="x" onclick="closeModal()">×</button></div>
     <div class="modal-body">
       <div class="hint">${pd(dateStr).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})} · ${fmtTime(min)}</div>
-      <label class="field">Client<select id="m_client">${clientOptions()}</select></label>
+      ${pre?`<div class="hint" style="color:var(--mple)">From the waiting list — booking ${clientName(pre.clientId)}</div>`:''}
+      <label class="field">Client<select id="m_client">${clientOptions(pre?pre.clientId:'')}</select></label>
       <div class="row">
         <label class="field">Duration<select id="m_dur"><option value="60">1 hour</option><option value="90">1.5 hours</option></select></label>
         <label class="field">Start<input type="time" id="m_start" value="${fmtTime(min)}" step="1800"></label>
       </div>
-      <label class="chk"><input type="checkbox" id="m_repeat"> Repeat every ${DOW_FULL[pd(dateStr).getDay()]} (regular slot)</label>
+      <label class="chk"><input type="checkbox" id="m_repeat"> Repeat every ${DOW_FULL[pd(dateStr).getDay()]} · ${season} schedule</label>
       <label class="field">Note (optional)<input type="text" id="m_note" placeholder="e.g. booked by phone"></label>
     </div>
     <div class="modal-foot">
-      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn ghost sm" onclick="prefill=null;closeModal()">Cancel</button>
       <button class="btn" onclick="confirmAdd('${dateStr}')">Book lesson</button>
     </div>`);
 }
@@ -811,14 +879,98 @@ function confirmAdd(dateStr){
   if(start<openMin()||start+dur>state.coach.close*60){toast('Outside working hours');return;}
   if(overlaps(dateStr,start,dur)){toast('That slot is already taken');return;}
   const who=clientName(cid);
+  const season=seasonForDate(dateStr);
   if(repeat){
-    state.regulars.push({id:uid(),clientId:cid,weekday:pd(dateStr).getDay(),startMin:start,durationMin:dur,startDate:dateStr,endDate:null});
-    logEvent(`Added ${who} as a regular every ${DOW_FULL[pd(dateStr).getDay()]} at ${fmtTime(start)}`);
+    state.regulars.push({id:uid(),clientId:cid,weekday:pd(dateStr).getDay(),startMin:start,durationMin:dur,startDate:dateStr,endDate:null,season});
+    logEvent(`Added ${who} as a regular every ${DOW_FULL[pd(dateStr).getDay()]} at ${fmtTime(start)} (${season})`);
   }else{
     state.oneoffs.push({id:uid(),clientId:cid,date:dateStr,startMin:start,durationMin:dur,note});
     logEvent(`Booked ${who} on ${dateStr} at ${fmtTime(start)}`);
   }
-  save();closeModal();renderSchedule();toast('Lesson booked');
+  // if booked off the waiting list, take them off it
+  if(prefill&&prefill.clientId===cid&&prefill.waitId){
+    state.waitlist=state.waitlist.filter(w=>w.id!==prefill.waitId);
+    logEvent(`Removed ${who} from the waiting list (now booked)`);
+  }
+  prefill=null;
+  save();closeModal();renderSchedule();renderWaitlist();toast('Lesson booked');
+}
+
+/* ---------- waiting list ---------- */
+function renderWaitlist(){
+  const tb=document.getElementById('waitRows');if(!tb)return;
+  const list=state.waitlist||[];
+  if(!list.length){
+    tb.innerHTML=`<tr><td colspan="5"><div class="empty-state">No one waiting. Add someone when the coach has no free slot.</div></td></tr>`;
+  }else{
+    tb.innerHTML=list.slice().sort((a,b)=>(a.ts||'').localeCompare(b.ts||'')).map(w=>{
+      const nm=w.clientId?clientName(w.clientId):(w.name||'—');
+      const linked=w.clientId?' <span class="pill" style="background:var(--shell);color:var(--mple)">client</span>':'';
+      return `<tr>
+        <td><b style="color:var(--mple)">${escapeHtml(nm)}</b>${linked}</td>
+        <td>${w.phone?escapeHtml(w.phone):'<span class="muted">—</span>'}</td>
+        <td>${w.pref?escapeHtml(w.pref):'<span class="muted">—</span>'}</td>
+        <td class="muted">${w.ts?fmtStamp(w.ts):''}</td>
+        <td style="white-space:nowrap">
+          ${w.clientId?`<button class="btn sm" onclick="bookFromWait('${w.id}')">Book</button>`:''}
+          <button class="btn ghost sm" onclick="removeWait('${w.id}')">Remove</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  const badge=document.getElementById('waitBadge');
+  if(badge)badge.textContent=list.length?`(${list.length})`:'';
+}
+function openAddWaitModal(){
+  if(!requireUser())return;
+  openModal(`
+    <div class="modal-head">Add to waiting list<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <label class="field">Existing client
+        <select id="w_client"><option value="">— someone new —</option>${clientOptions('')}</select>
+      </label>
+      <div id="w_newWrap">
+        <div class="row">
+          <label class="field">Name<input type="text" id="w_name" placeholder="Their name"></label>
+          <label class="field">Phone<input type="tel" id="w_phone" placeholder="Optional"></label>
+        </div>
+      </div>
+      <label class="field">What they want<input type="text" id="w_pref" placeholder="e.g. weekday evenings, any Saturday morning"></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveWait()">Add</button>
+    </div>`);
+  const sel=document.getElementById('w_client');
+  const sync=()=>{document.getElementById('w_newWrap').style.display=sel.value?'none':'block';};
+  sel.addEventListener('change',sync);sync();
+}
+function saveWait(){
+  if(!requireUser())return;
+  const cid=document.getElementById('w_client').value;
+  const pref=document.getElementById('w_pref').value.trim();
+  const entry={id:uid(),ts:now(),pref};
+  if(cid){entry.clientId=cid;const c=client(cid);entry.phone=c?c.phone||'':'';}
+  else{
+    const name=document.getElementById('w_name').value.trim();
+    if(!name){toast('Add a name or pick a client');return;}
+    entry.name=name;entry.phone=document.getElementById('w_phone').value.trim();
+  }
+  state.waitlist.push(entry);
+  logEvent(`Added ${entry.clientId?clientName(entry.clientId):entry.name} to the waiting list`);
+  save();closeModal();renderWaitlist();toast('Added to waiting list');
+}
+function removeWait(id){
+  const w=state.waitlist.find(x=>x.id===id);
+  state.waitlist=state.waitlist.filter(x=>x.id!==id);
+  logEvent(`Removed ${w?(w.clientId?clientName(w.clientId):w.name):''} from the waiting list`);
+  save();renderWaitlist();
+}
+function bookFromWait(id){
+  const w=state.waitlist.find(x=>x.id===id);if(!w||!w.clientId)return;
+  prefill={clientId:w.clientId,waitId:w.id};
+  switchTab('schedule');
+  toast('Pick an open slot for '+clientName(w.clientId));
 }
 
 function openBookingModal(it){
@@ -895,6 +1047,11 @@ function openBreakModal(it){
         <label class="field">Start<input type="time" id="bk_start" value="${fmtTime(b.startMin)}" step="1800"></label>
         <label class="field">End<input type="time" id="bk_end" value="${fmtTime(b.startMin+b.durationMin)}" step="1800"></label>
       </div>
+      <label class="field">Applies in<select id="bk_season">
+        <option value="" ${!b.season?'selected':''}>Both seasons</option>
+        <option value="summer" ${b.season==='summer'?'selected':''}>Summer only</option>
+        <option value="winter" ${b.season==='winter'?'selected':''}>Winter only</option>
+      </select></label>
     </div>
     <div class="modal-foot">
       <button class="danger btn sm" onclick="deleteBreak('${b.id}')">Delete break</button>
@@ -918,6 +1075,8 @@ function saveBreakEdit(id){
   const t=readBreakTimes();if(!t)return;
   b.startMin=t.start;b.durationMin=t.dur;
   b.label=document.getElementById('bk_label').value.trim()||'Break';
+  const bs=document.getElementById('bk_season').value;
+  if(bs)b.season=bs; else delete b.season;
   logEvent(`Updated break "${b.label}" (${fmtTime(t.start)}–${fmtTime(t.start+t.dur)})`);
   save();closeModal();renderSchedule();toast('Saved');
 }
@@ -946,6 +1105,11 @@ function openAddBreakModal(){
           <option value="once">Just this date</option>
         </select>
       </label>
+      <label class="field">Applies in<select id="bk_season">
+        <option value="">Both seasons</option>
+        <option value="summer">Summer only</option>
+        <option value="winter">Winter only</option>
+      </select></label>
       <div class="row">
         <label class="field" id="bk_dayWrap" style="display:none">Day<select id="bk_day">${DOW.map((d,i)=>`<option value="${i}" ${i===pd(def).getDay()?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
         <label class="field" id="bk_dateWrap" style="display:none">Date<input type="date" id="bk_date" value="${def}"></label>
@@ -968,18 +1132,20 @@ function confirmBreak(){
   const t=readBreakTimes();if(!t)return;
   const start=t.start, dur=t.dur;
   const rep=document.getElementById('bk_repeat').value;
+  const ssn=document.getElementById('bk_season').value||undefined;
   const base=ds(new Date());
+  const mk=extra=>Object.assign({id:uid(),startMin:start,durationMin:dur,label},ssn?{season:ssn}:{},extra);
   if(rep==='daily'){
-    state.coach.days.forEach(wd=>state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:start,durationMin:dur,label,startDate:base,endDate:null}));
-    logEvent(`Added daily break "${label}" at ${fmtTime(start)}`);
+    state.coach.days.forEach(wd=>state.breaks.push(mk({recurring:true,weekday:wd,startDate:base,endDate:null})));
+    logEvent(`Added daily break "${label}" at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
   }else if(rep==='weekly'){
     const wd=parseInt(document.getElementById('bk_day').value,10);
-    state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:start,durationMin:dur,label,startDate:base,endDate:null});
-    logEvent(`Added weekly break "${label}" on ${DOW_FULL[wd]} at ${fmtTime(start)}`);
+    state.breaks.push(mk({recurring:true,weekday:wd,startDate:base,endDate:null}));
+    logEvent(`Added weekly break "${label}" on ${DOW_FULL[wd]} at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
   }else{
     const date=document.getElementById('bk_date').value;
-    state.breaks.push({id:uid(),recurring:false,date,startMin:start,durationMin:dur,label});
-    logEvent(`Added break "${label}" on ${date} at ${fmtTime(start)}`);
+    state.breaks.push(mk({recurring:false,date}));
+    logEvent(`Added break "${label}" on ${date} at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
   }
   save();closeModal();renderSchedule();toast('Break added');
 }
@@ -993,7 +1159,7 @@ function renderClients(){
       <td><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${c.color||'#003087'};margin-right:7px;vertical-align:middle"></span><b style="color:var(--mple)">${c.name}</b></td>
       <td><span class="pill ${c.type}">${c.type==='casual'?'Casual':'Regular'}</span></td>
       <td>${c.phone||'<span class="muted">—</span>'}</td>
-      <td>${slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)} <span class="muted">(${s.durationMin}m)</span>`).join('<br>'):'<span class="muted">—</span>'}</td>
+      <td>${slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)} <span class="muted">(${s.durationMin}m${s.season?', '+s.season:''})</span>`).join('<br>'):'<span class="muted">—</span>'}</td>
       <td>${hols.length?hols.map(h=>`<span class="pill away">${h.start} → ${h.end}</span>`).join(' '):'<span class="muted">—</span>'}</td>
       <td style="white-space:nowrap">
         <button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button>
@@ -1044,14 +1210,20 @@ function editClient(id){
 }
 let selectedColor=PALETTE[0];
 function slotRow(s){
+  const seas=s&&s.season?s.season:'';
   return `<div class="row slot-row" data-id="${s?s.id:''}" style="margin-bottom:8px;align-items:flex-end">
     <label class="field" style="flex:1.2">Day<select class="s_day">${DOW.map((d,i)=>`<option value="${i}" ${s&&s.weekday===i?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
     <label class="field">Time<input type="time" class="s_time" value="${s?fmtTime(s.startMin):'17:00'}" step="1800"></label>
     <label class="field">Length<select class="s_dur"><option value="60" ${s&&s.durationMin===60?'selected':''}>1h</option><option value="90" ${s&&s.durationMin===90?'selected':''}>1.5h</option></select></label>
+    <label class="field">Season<select class="s_season">
+      <option value="" ${seas===''?'selected':''}>Both</option>
+      <option value="summer" ${seas==='summer'?'selected':''}>Summer</option>
+      <option value="winter" ${seas==='winter'?'selected':''}>Winter</option>
+    </select></label>
     <button class="btn ghost sm" style="flex:0 0 auto" onclick="this.closest('.slot-row').remove()">✕</button>
   </div>`;
 }
-function addSlotRow(){const w=document.getElementById('slotEdit');const div=document.createElement('div');div.innerHTML=slotRow(null);w.appendChild(div.firstElementChild);}
+function addSlotRow(){const w=document.getElementById('slotEdit');const div=document.createElement('div');div.innerHTML=slotRow({season:activeSeason()});w.appendChild(div.firstElementChild);}
 function saveClient(id){
   if(!requireUser())return;
   const name=document.getElementById('c_name').value.trim();
@@ -1068,7 +1240,8 @@ function saveClient(id){
       const wd=parseInt(row.querySelector('.s_day').value,10);
       const[h,m]=row.querySelector('.s_time').value.split(':').map(Number);
       const dur=parseInt(row.querySelector('.s_dur').value,10);
-      state.regulars.push({id:row.dataset.id||uid(),clientId:id,weekday:wd,startMin:h*60+m,durationMin:dur,startDate:ds(new Date()),endDate:null});
+      const season=row.querySelector('.s_season').value;
+      state.regulars.push({id:row.dataset.id||uid(),clientId:id,weekday:wd,startMin:h*60+m,durationMin:dur,startDate:ds(new Date()),endDate:null,season});
     });
     logEvent(`Updated ${name}'s weekly slots`);
   }
@@ -1189,7 +1362,25 @@ function renderSettings(){
   for(let h=5;h<=22;h++){o.innerHTML+=`<option value="${h}" ${h===state.coach.open?'selected':''}>${fmtTime(h*60)}</option>`;}
   for(let h=6;h<=23;h++){c.innerHTML+=`<option value="${h}" ${h===state.coach.close?'selected':''}>${fmtTime(h*60)}</option>`;}
   document.getElementById('setDays').innerHTML=DOW.map((d,i)=>`<label class="chk" style="background:var(--foam);padding:6px 10px;border-radius:var(--r);border:1px solid var(--line)"><input type="checkbox" class="d_chk" value="${i}" ${state.coach.days.includes(i)?'checked':''}> ${d}</label>`).join('');
+  renderSeasonMonths();
   renderStaff();
+}
+function renderSeasonMonths(){
+  const wrap=document.getElementById('seasonMonths');if(!wrap)return;
+  const summer=(state.seasons&&state.seasons.summerMonths)||[];
+  wrap.innerHTML=MONTHS.map((m,i)=>{
+    const mn=i+1, isSummer=summer.includes(mn);
+    const bg=isSummer?'#B8862A':'#2C4A6E';
+    return `<button type="button" onclick="toggleSeasonMonth(${mn})" style="padding:8px 0;border:none;border-radius:var(--r);background:${bg};color:var(--foam);font-size:12px;font-weight:500;cursor:pointer">${m}</button>`;
+  }).join('');
+}
+function toggleSeasonMonth(mn){
+  if(!state.seasons)state.seasons={summerMonths:[]};
+  const arr=state.seasons.summerMonths||(state.seasons.summerMonths=[]);
+  const i=arr.indexOf(mn);
+  if(i>=0)arr.splice(i,1); else arr.push(mn);
+  state.seasons.summerMonths=arr.slice().sort((a,b)=>a-b);
+  save();renderSeasonMonths();renderSchedule();
 }
 function saveSettings(){
   state.coach.name=document.getElementById('setCoach').value.trim()||'Coach';
@@ -1235,16 +1426,18 @@ function importData(file){
    TABS / WIRING
    ======================================================== */
 function switchTab(tab){
+  if(tab!=='schedule')prefill=null;
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='clients')renderClients();
+  if(tab==='waitlist')renderWaitlist();
   if(tab==='analytics')renderAnalytics();
   if(tab==='notes')renderNotes();
   if(tab==='activity')renderLog();
   if(tab==='settings')renderSettings();
 }
-function renderAll(){renderSchedule();renderClients();renderAnalytics();renderNotes();renderLog();renderSettings();}
+function renderAll(){renderSchedule();renderClients();renderWaitlist();renderAnalytics();renderNotes();renderLog();renderSettings();}
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
@@ -1259,6 +1452,7 @@ document.getElementById('showOpen').addEventListener('change',renderSchedule);
 document.getElementById('availMin').addEventListener('change',renderSchedule);
 document.getElementById('addBreakBtn').addEventListener('click',openAddBreakModal);
 document.getElementById('addClientBtn').addEventListener('click',()=>editClient(null));
+document.getElementById('addWaitBtn').addEventListener('click',openAddWaitModal);
 document.getElementById('addNoteBtn').addEventListener('click',addNote);
 document.getElementById('saveSettings').addEventListener('click',saveSettings);
 document.getElementById('addStaffBtn').addEventListener('click',addStaff);
@@ -1266,6 +1460,8 @@ document.getElementById('userSelect').addEventListener('change',e=>{state.curren
 document.getElementById('exportBtn').addEventListener('click',exportData);
 document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
 document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importData(e.target.files[0]);});
+document.getElementById('syncBtn').addEventListener('click',syncNow);
+if(!API_URL)document.getElementById('syncBtn').style.display='none';
 
 /* ---------- seed a tiny demo (local-only mode, first run) ---------- */
 if(!API_URL && !state.clients.length && !localStorage.getItem(KEY)){
