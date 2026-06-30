@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aphrodite Hills · Racket Club Coach Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Geologica:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mple:#003087;
+    --mple-70:#33599f;
+    --mple-25:#bfcce1;
+    --bronze:#8E7A6B;
+    --bronze-70:#aa9b8f;
+    --foam:#F9F6F4;
+    --shell:#D6D1C3;
+    --pearl:#CFCDC9;
+    --ink:#1d1d1d;
+    --ink-70:#4d4d4d;
+    --line:#e3ddd2;
+    --good:#2D5D3A;
+    --warn:#9a5b1e;
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Geologica',system-ui,sans-serif;
+    --r:6px;
+    --shadow:0 1px 3px rgba(0,48,135,.08),0 6px 24px rgba(0,48,135,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    font-weight:300;
+    background:var(--foam);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:var(--sans);cursor:pointer}
+  input,select,textarea{font-family:var(--sans)}
+
+  /* ---------- top bar ---------- */
+  header{
+    background:var(--mple);
+    color:var(--foam);
+    padding:14px 22px;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:40;
+  }
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .brand .name{font-family:var(--serif);font-size:20px;letter-spacing:.5px}
+  .brand .sub{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--shell);margin-top:4px;font-weight:400}
+  header .spacer{flex:1}
+  .user-pick{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--shell)}
+  .user-pick select{
+    background:rgba(255,255,255,.1);color:var(--foam);border:1px solid rgba(255,255,255,.25);
+    border-radius:var(--r);padding:6px 10px;font-size:12.5px;font-weight:400;
+  }
+  .user-pick select option{color:var(--ink)}
+  .sync-pill{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--foam);background:var(--bronze);padding:4px 11px;border-radius:20px;font-weight:400}
+
+  /* ---------- tabs ---------- */
+  nav.tabs{
+    background:#fff;border-bottom:1px solid var(--line);
+    display:flex;gap:2px;padding:0 16px;position:sticky;top:55px;z-index:30;overflow-x:auto;
+  }
+  nav.tabs button{
+    background:none;border:none;padding:14px 16px;font-size:13px;font-weight:400;
+    color:var(--ink-70);border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.3px;
+  }
+  nav.tabs button.active{color:var(--mple);border-bottom-color:var(--bronze);font-weight:500}
+  nav.tabs button:hover{color:var(--mple)}
+
+  main{padding:20px;max-width:1500px;margin:0 auto}
+  .view{display:none}
+  .view.active{display:block}
+
+  h2.section{font-family:var(--serif);font-weight:500;color:var(--mple);font-size:22px;margin:0 0 4px}
+  .muted{color:var(--ink-70);font-size:13px}
+
+  /* ---------- schedule controls ---------- */
+  .sched-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .btn{
+    border:1px solid var(--mple);background:var(--mple);color:var(--foam);
+    border-radius:var(--r);padding:8px 14px;font-size:13px;font-weight:400;letter-spacing:.2px;
+  }
+  .btn:hover{background:#00266b}
+  .btn.ghost{background:#fff;color:var(--mple)}
+  .btn.ghost:hover{background:var(--foam)}
+  .btn.bronze{background:var(--bronze);border-color:var(--bronze)}
+  .btn.bronze:hover{background:#7c6a5c}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .seg{display:flex;border:1px solid var(--shell);border-radius:var(--r);overflow:hidden}
+  .seg button{background:#fff;border:none;padding:8px 14px;font-size:12.5px;color:var(--ink-70)}
+  .seg button.active{background:var(--mple);color:var(--foam)}
+  .nav-date{font-family:var(--serif);font-size:17px;color:var(--mple);min-width:230px;text-align:center}
+  input[type=date],input[type=text],input[type=tel],select,textarea{
+    border:1px solid var(--shell);border-radius:var(--r);padding:8px 10px;font-size:13px;background:#fff;color:var(--ink);
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--mple-25);outline-offset:0;border-color:var(--mple)}
+  label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-70);letter-spacing:.3px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-70)}
+
+  /* ---------- grid ---------- */
+  .grid-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:auto;box-shadow:var(--shadow)}
+  .sgrid{display:grid;min-width:760px}
+  .cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
+  .time-col{border-right:1px solid var(--line)}
+  .time-label{
+    font-size:10.5px;color:var(--ink-70);padding:2px 6px;text-align:right;
+    border-bottom:1px dashed var(--line);height:26px;display:flex;align-items:flex-start;justify-content:flex-end;
+  }
+  .time-label.hour{border-bottom:1px solid var(--line);font-weight:500;color:var(--mple)}
+  .day-head{
+    background:var(--foam);border-right:1px solid var(--line);border-bottom:1px solid var(--shell);
+    padding:8px 6px;text-align:center;position:sticky;top:0;z-index:2;
+  }
+  .day-head .dow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bronze);font-weight:500}
+  .day-head .dnum{font-family:var(--serif);font-size:18px;color:var(--mple);line-height:1.1}
+  .day-head.today .dnum{color:var(--bronze)}
+  .day-head .away{font-size:9.5px;color:var(--warn);margin-top:3px;line-height:1.2}
+  .corner{background:var(--foam);border-right:1px solid var(--line);border-bottom:1px solid var(--shell);position:sticky;top:0;z-index:3}
+  .slot{height:26px;cursor:pointer;transition:background .1s}
+  .slot:hover{background:var(--mple-25)}
+  .slot.hour{border-top:1px solid var(--line)}
+  .open-run{position:absolute;left:3px;top:2px;font-size:9px;color:var(--bronze);font-weight:500;letter-spacing:.5px;pointer-events:none}
+
+  .booking{
+    margin:1px;border-radius:4px;padding:4px 6px;color:var(--foam);overflow:hidden;cursor:grab;
+    display:flex;flex-direction:column;justify-content:flex-start;font-size:11.5px;line-height:1.25;
+    border-left:3px solid rgba(255,255,255,.5);
+  }
+  .booking:active{cursor:grabbing}
+  .booking.regular{background:var(--mple)}
+  .booking.casual{border-left:3px dashed rgba(255,255,255,.85)}
+  .booking.moved{border-left:3px solid var(--bronze);box-shadow:inset 0 0 0 1px rgba(184,134,42,.7)}
+  .booking.break{
+    background:repeating-linear-gradient(45deg,var(--pearl),var(--pearl) 6px,#c4c2bd 6px,#c4c2bd 12px);
+    color:var(--ink);cursor:pointer;border-left:3px solid var(--bronze);
+  }
+  .booking.break .bname{font-style:italic}
+  .booking .bname{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .booking .btime{font-size:10px;opacity:.85;font-weight:300}
+  .booking .btag{font-size:9px;letter-spacing:.5px;text-transform:uppercase;opacity:.8}
+  .slot.dragover{background:var(--mple-25);outline:2px dashed var(--mple)}
+
+  /* ---------- cards / tables ---------- */
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:500;color:var(--mple);border-bottom:2px solid var(--shell);padding:8px 10px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:hover td{background:var(--foam)}
+  .pill{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:20px;letter-spacing:.5px}
+  .pill.regular{background:var(--mple);color:var(--foam)}
+  .pill.casual{background:var(--bronze);color:var(--foam)}
+  .pill.away{background:#f3e7d6;color:var(--warn)}
+  .stat{font-family:var(--serif);font-size:30px;color:var(--mple);line-height:1}
+  .stat-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--bronze);margin-top:5px}
+  .client-card{background:var(--foam);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+  .client-card h4{margin:0 0 2px;font-family:var(--serif);font-weight:500;color:var(--mple);font-size:16px}
+  .bar{height:7px;background:var(--shell);border-radius:5px;overflow:hidden;margin-top:6px}
+  .bar > i{display:block;height:100%;background:var(--mple)}
+
+  /* notes */
+  .note{border-left:3px solid var(--bronze);background:var(--foam);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;margin-bottom:10px}
+  .note.unread{border-left-color:var(--mple);background:#eef1f8}
+  .note .meta{font-size:11px;color:var(--ink-70);margin-bottom:5px;display:flex;justify-content:space-between;gap:8px}
+  .note .meta b{color:var(--mple);font-weight:500}
+  .log-row{font-size:12px;color:var(--ink-70);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
+  .log-row time{color:var(--bronze);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,38,107,.35);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:var(--r);max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow:auto}
+  .modal-head{background:var(--mple);color:var(--foam);padding:16px 20px;font-family:var(--serif);font-size:18px;border-radius:var(--r) var(--r) 0 0;display:flex;justify-content:space-between;align-items:center}
+  .modal-head .x{background:none;border:none;color:var(--shell);font-size:22px;line-height:1}
+  .modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .row{display:flex;gap:12px}
+  .row > *{flex:1}
+  .danger{color:#fff;background:#8a2a22;border-color:#8a2a22}
+  .danger:hover{background:#71211b}
+
+  .empty-state{text-align:center;padding:40px;color:var(--ink-70);font-size:14px}
+  .avail-day{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .avail-day:last-child{border-bottom:none}
+  .avail-day .ad-date{min-width:150px;font-weight:500;color:var(--mple);font-size:13px}
+  .avail-chip{display:inline-block;background:var(--foam);border:1px solid var(--shell);color:var(--mple);border-radius:20px;padding:3px 11px;font-size:12px;margin:2px 4px 2px 0;font-variant-numeric:tabular-nums}
+  .avail-none{color:var(--bronze);font-size:12.5px;font-style:italic}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-70);margin-top:10px;align-items:center}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--mple);color:var(--foam);padding:11px 20px;border-radius:var(--r);font-size:13px;box-shadow:var(--shadow);z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hint{font-size:11.5px;color:var(--bronze)}
+  @media(max-width:640px){
+    .nav-date{min-width:auto;font-size:15px}
+    main{padding:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="name">Aphrodite Hills</span>
+    <span class="sub">Racket Club · Coach Schedule</span>
+  </div>
+  <div class="spacer"></div>
+  <span id="syncStatus" class="sync-pill">Local only</span>
+  <div class="user-pick">
+    <span>Signed in as</span>
+    <select id="userSelect"></select>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="schedule" class="active">Schedule</button>
+  <button data-tab="clients">Clients</button>
+  <button data-tab="analytics">Analytics</button>
+  <button data-tab="notes">Notes <span id="noteBadge"></span></button>
+  <button data-tab="activity">Activity</button>
+  <button data-tab="settings">Settings</button>
+</nav>
+
+<main>
+  <!-- SCHEDULE -->
+  <section id="view-schedule" class="view active">
+    <div class="sched-bar">
+      <div class="seg">
+        <button id="viewWeek" class="active">Week</button>
+        <button id="viewDay">Day</button>
+      </div>
+      <button class="btn ghost sm" id="prevBtn">‹ Prev</button>
+      <button class="btn ghost sm" id="todayBtn">Today</button>
+      <button class="btn ghost sm" id="nextBtn">Next ›</button>
+      <span class="nav-date" id="navDate"></span>
+      <input type="date" id="jumpDate">
+      <button class="btn bronze sm" id="addBreakBtn">+ Break</button>
+      <div class="spacer" style="flex:1"></div>
+      <label class="chk"><input type="checkbox" id="showOpen" checked> Show open slots</label>
+    </div>
+    <div class="grid-wrap"><div class="sgrid" id="sgrid"></div></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--mple)"></i> Each client has its own colour</span>
+      <span><i class="sw" style="border:2px dashed var(--bronze);background:var(--shell)"></i> Casual / one-off</span>
+      <span><i class="sw" style="background:var(--mple);box-shadow:inset 0 0 0 2px var(--bronze)"></i> Moved this week</span>
+      <span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--pearl),var(--pearl) 3px,#c4c2bd 3px,#c4c2bd 6px)"></i> Break</span>
+      <span class="hint">Click an empty slot to book · drag a lesson to move it · click a break to edit</span>
+    </div>
+
+    <div class="panel" style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+        <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin:0;font-size:18px">Available slots</h3>
+        <label class="chk">Min length
+          <select id="availMin" style="padding:5px 8px"><option value="60">1 hour</option><option value="90">1.5 hours</option></select>
+        </label>
+      </div>
+      <p class="muted" style="margin:0 0 12px">Open gaps in the dates shown above, after lessons, breaks and holidays. This is what you can offer a non-regular.</p>
+      <div id="availList"></div>
+    </div>
+  </section>
+
+  <!-- CLIENTS -->
+  <section id="view-clients" class="view">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div><h2 class="section">Clients</h2><p class="muted">Regular slots repeat every week automatically. Add holidays to free a client's slots while they're away.</p></div>
+      <button class="btn" id="addClientBtn">+ Add client</button>
+    </div>
+    <div class="panel"><table><thead><tr>
+      <th>Name</th><th>Type</th><th>Contact</th><th>Weekly slots</th><th>Holidays</th><th></th>
+    </tr></thead><tbody id="clientRows"></tbody></table></div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section id="view-analytics" class="view">
+    <h2 class="section">Analytics</h2>
+    <p class="muted">Utilisation is based on regular weekly slots against the coach's working hours.</p>
+    <div class="grid2" id="statCards" style="margin:16px 0"></div>
+    <div class="panel">
+      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Per-client breakdown</h3>
+      <table><thead><tr>
+        <th>Client</th><th>Type</th><th>Hours / week</th><th>Lessons / week</th><th>When they play</th>
+      </tr></thead><tbody id="analyticRows"></tbody></table>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section id="view-notes" class="view">
+    <h2 class="section">Notes between staff</h2>
+    <p class="muted">Leave a message for whoever covers the desk next. Click a note to mark it read.</p>
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px">
+        <textarea id="noteText" rows="2" placeholder="e.g. Andreas asked to move his Thursday 18:00 to Friday next week, waiting on confirmation"></textarea>
+      </div>
+      <div style="text-align:right"><button class="btn" id="addNoteBtn">Post note</button></div>
+    </div>
+    <div id="noteList"></div>
+  </section>
+
+  <!-- ACTIVITY -->
+  <section id="view-activity" class="view">
+    <h2 class="section">Activity log</h2>
+    <p class="muted">Every schedule change is stamped with who made it, so nothing gets changed silently.</p>
+    <div class="panel" id="logList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="view-settings" class="view">
+    <h2 class="section">Settings</h2>
+    <div class="panel" style="max-width:560px">
+      <div class="row" style="margin-bottom:14px">
+        <label class="field">Coach name<input type="text" id="setCoach"></label>
+      </div>
+      <div class="row" style="margin-bottom:14px">
+        <label class="field">Opens at<select id="setOpen"></select></label>
+        <label class="field">Closes at<select id="setClose"></select></label>
+      </div>
+      <div style="margin-bottom:14px">
+        <div class="muted" style="margin-bottom:6px">Working days</div>
+        <div id="setDays" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      </div>
+      <button class="btn" id="saveSettings">Save settings</button>
+    </div>
+    <div class="panel" style="max-width:560px">
+      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Staff at the desk</h3>
+      <p class="muted">These names appear in the "signed in as" picker and get attached to every change.</p>
+      <div class="row" style="margin:12px 0">
+        <input type="text" id="newStaff" placeholder="Add a receptionist name">
+        <button class="btn bronze sm" id="addStaffBtn" style="flex:0 0 auto">Add</button>
+      </div>
+      <div id="staffList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <div class="panel" style="max-width:560px">
+      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Backup</h3>
+      <p class="muted">Until this is connected to a shared database, export the data to move it between machines or keep a safety copy.</p>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn ghost sm" id="exportBtn">Export data (.json)</button>
+        <button class="btn ghost sm" id="importBtn">Import data</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none">
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   Aphrodite Hills Racket Club — Coach Scheduler
+   ---------------------------------------------------------
+   Front end for GitHub Pages. With API_URL set, all data
+   lives in a shared Google Sheet via Apps Script, so every
+   receptionist sees the same live schedule. A local cache
+   keeps it instant and usable if the connection drops.
+   ========================================================= */
+
+const KEY='ah_racket_scheduler_v1';
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+const defaultState=()=>({
+  coach:{name:'Head Tennis Coach', open:8, close:20, days:[1,2,3,4,5,6]}, // Mon-Sat
+  staff:['Reception'],
+  currentUser:'Reception',
+  clients:[],
+  regulars:[],
+  oneoffs:[],
+  exceptions:[],
+  holidays:[],
+  breaks:[],
+  notes:[],
+  log:[]
+});
+
+/* curated client palette — deep, muted tones that sit with Mple blue + bronze */
+const PALETTE=['#003087','#8E7A6B','#2D5D3A','#6B4E71','#A14334','#1F6F78','#8A6D1E','#455A7A','#7A1F2B','#4A6B2A','#5A5550','#2C4A6E'];
+function nextColor(){
+  const used=state.clients.map(c=>c.color);
+  return PALETTE.find(p=>!used.includes(p))||PALETTE[state.clients.length%PALETTE.length];
+}
+function textOn(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum>0.62?'#1d1d1d':'#F9F6F4';
+}
+
+let state=loadCache();
+let view='week';
+let cursor=startOfWeek(new Date());
+
+/* =========================================================
+   SYNC ENGINE — shared Google Sheet via Apps Script
+   ---------------------------------------------------------
+   Paste the Web App URL from your Apps Script deployment
+   between the quotes below. Leave it empty to run this file
+   in local-only mode (data stays in this browser).
+   ========================================================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbxQo07jqtXeapUGnzGqZODKnoz5znRmeErji8UYdXAbIahde6u9FbTuOK2JZUgjM2Rz/exec";   // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
+
+const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','log'];
+let lastSynced=null;       // baseline snapshot for computing deltas
+let pending=0;             // in-flight writes
+let dirty=false;
+let pushTimer=null;
+const USER_KEY='ah_racket_user';
+
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s;}
+
+/* ---- local cache (instant load + offline fallback) ---- */
+function loadCache(){
+  const base=defaultState();
+  try{const r=localStorage.getItem(KEY);if(r)Object.assign(base,JSON.parse(r));}catch(e){}
+  try{const u=localStorage.getItem(USER_KEY);if(u)base.currentUser=u;}catch(e){}
+  return base;
+}
+function cacheLocal(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(USER_KEY,state.currentUser||'');}catch(e){}
+}
+
+/* ---- the one function every mutation already calls ---- */
+function save(){
+  cacheLocal();
+  if(!API_URL)return;                 // local-only mode
+  dirty=true;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(flush,400);    // debounce bursts (e.g. rebuilding slots)
+}
+
+/* ---- network ---- */
+async function api(action,payload){
+  const res=await fetch(API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(Object.assign({action},payload||{}))
+  });
+  const json=await res.json();
+  if(json&&json.error)throw new Error(json.error);
+  return json;
+}
+
+function labelFor(t,r){
+  try{
+    if(t==='clients')return r.name;
+    if(t==='regulars')return clientName(r.clientId)+' · '+DOW[r.weekday]+' '+fmtTime(r.startMin);
+    if(t==='oneoffs')return clientName(r.clientId)+' · '+r.date+' '+fmtTime(r.startMin);
+    if(t==='exceptions')return r.type+' · '+(r.newDate||r.originalDate);
+    if(t==='holidays')return clientName(r.clientId)+' · '+r.start+'→'+r.end;
+    if(t==='breaks')return (r.label||'Break')+' · '+(r.recurring?DOW[r.weekday]:r.date);
+    if(t==='notes')return r.author+': '+(r.text||'').slice(0,40);
+    if(t==='log')return (r.text||'').slice(0,50);
+  }catch(e){}
+  return r.id;
+}
+function buildOps(){
+  const ops=[];
+  const base=lastSynced||{};
+  TABLES.forEach(t=>{
+    const cur=state[t]||[], prev=base[t]||[];
+    const prevById={};prev.forEach(r=>prevById[r.id]=r);
+    const seen={};
+    cur.forEach(r=>{seen[r.id]=1;const p=prevById[r.id];
+      if(!p||JSON.stringify(p)!==JSON.stringify(r))ops.push({type:'upsert',table:t,id:r.id,label:labelFor(t,r),data:r});
+    });
+    prev.forEach(r=>{if(!seen[r.id])ops.push({type:'remove',table:t,id:r.id});});
+  });
+  if(JSON.stringify(base.coach)!==JSON.stringify(state.coach))ops.push({type:'meta',key:'coach',data:state.coach});
+  if(JSON.stringify(base.staff)!==JSON.stringify(state.staff))ops.push({type:'meta',key:'staff',data:state.staff});
+  return ops;
+}
+async function flush(){
+  if(!dirty||!API_URL)return;
+  const ops=buildOps();
+  if(!ops.length){dirty=false;return;}
+  pending++;setStatus('saving');
+  try{
+    await api('write',{ops});
+    lastSynced=snapshot();
+    dirty=false;cacheLocal();
+    setStatus('ok');
+  }catch(e){
+    setStatus('offline');
+    setTimeout(()=>{dirty=true;flush();},3000); // retry
+  }finally{pending--;}
+}
+async function pullAll(silent){
+  if(!API_URL)return;
+  if(pending>0)return;
+  if(overlay.classList.contains('open'))return; // don't yank UI mid-edit
+  if(dirty)return;                               // don't overwrite unsaved local changes
+  try{
+    if(!silent)setStatus('saving');
+    const data=await api('read',{});
+    const cu=state.currentUser;
+    TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);
+    if(data.coach)state.coach=data.coach;
+    if(data.staff)state.staff=data.staff;
+    state.currentUser=cu||(state.staff[0]||'');
+    lastSynced=snapshot();
+    cacheLocal();
+    renderAll();
+    setStatus('ok');
+  }catch(e){setStatus('offline');}
+}
+function startSync(){
+  if(!API_URL){setStatus('local');return;}
+  pullAll();
+  setInterval(()=>pullAll(true),20000);          // pick up others' changes
+  window.addEventListener('focus',()=>pullAll(true));
+}
+function setStatus(s){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  const map={ok:['Live','#2D5D3A'],saving:['Syncing…','#8A6D1E'],offline:['Offline','#8a2a22'],local:['Local only','#8E7A6B']};
+  const[txt,col]=map[s]||map.local;
+  el.textContent=txt;el.style.background=col;
+}
+
+/* ---------- date helpers ---------- */
+function ds(d){return d.toISOString().slice(0,10);}
+function pd(s){const[y,m,dd]=s.split('-').map(Number);return new Date(y,m-1,dd);}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;} // Monday start
+function fmtTime(min){const h=Math.floor(min/60),m=min%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function now(){return new Date().toISOString();}
+function fmtStamp(iso){const d=new Date(iso);return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});}
+
+/* ---------- lookups ---------- */
+const client=id=>state.clients.find(c=>c.id===id);
+const clientName=id=>{const c=client(id);return c?c.name:'Unknown';};
+function isOnHoliday(cid,dateStr){return state.holidays.some(h=>h.clientId===cid&&dateStr>=h.start&&dateStr<=h.end);}
+function exceptionFor(rid,dateStr){return state.exceptions.find(e=>e.regularId===rid&&e.originalDate===dateStr);}
+function awayClients(dateStr){return state.holidays.filter(h=>dateStr>=h.start&&dateStr<=h.end).map(h=>clientName(h.clientId));}
+
+/* ---------- build instances for a date ---------- */
+function getInstances(dateStr){
+  const wd=pd(dateStr).getDay();
+  const out=[];
+  state.regulars.forEach(r=>{
+    if(r.weekday!==wd)return;
+    if(dateStr<r.startDate)return;
+    if(r.endDate&&dateStr>r.endDate)return;
+    if(isOnHoliday(r.clientId,dateStr))return;
+    const ex=exceptionFor(r.id,dateStr);
+    if(ex)return; // cancelled or moved away
+    out.push({kind:'regular',regularId:r.id,clientId:r.clientId,date:dateStr,startMin:r.startMin,durationMin:r.durationMin});
+  });
+  state.exceptions.forEach(ex=>{
+    if(ex.type!=='move'||ex.newDate!==dateStr)return;
+    const r=state.regulars.find(x=>x.id===ex.regularId);if(!r)return;
+    out.push({kind:'moved',exceptionId:ex.id,regularId:r.id,clientId:r.clientId,date:dateStr,originalDate:ex.originalDate,startMin:ex.newStartMin,durationMin:ex.newDurationMin||r.durationMin});
+  });
+  state.oneoffs.forEach(o=>{
+    if(o.date!==dateStr)return;
+    out.push({kind:'oneoff',oneoffId:o.id,clientId:o.clientId,date:dateStr,startMin:o.startMin,durationMin:o.durationMin,note:o.note});
+  });
+  (state.breaks||[]).forEach(b=>{
+    if(b.recurring){
+      if(b.weekday!==wd)return;
+      if(b.startDate&&dateStr<b.startDate)return;
+      if(b.endDate&&dateStr>b.endDate)return;
+    }else if(b.date!==dateStr)return;
+    out.push({kind:'break',breakId:b.id,date:dateStr,startMin:b.startMin,durationMin:b.durationMin,label:b.label||'Break',recurring:b.recurring});
+  });
+  return out.sort((a,b)=>a.startMin-b.startMin);
+}
+
+function overlaps(dateStr,startMin,durationMin,ignore){
+  const end=startMin+durationMin;
+  return getInstances(dateStr).some(i=>{
+    if(ignore&&sameInstance(i,ignore))return false;
+    return startMin<i.startMin+i.durationMin && end>i.startMin;
+  });
+}
+function sameInstance(a,b){
+  if(a.kind!==b.kind)return false;
+  if(a.kind==='regular')return a.regularId===b.regularId&&a.date===b.date;
+  if(a.kind==='moved')return a.exceptionId===b.exceptionId;
+  if(a.kind==='break')return a.breakId===b.breakId;
+  return a.oneoffId===b.oneoffId;
+}
+
+/* ---------- logging ---------- */
+function logEvent(text){
+  state.log.unshift({id:uid(),author:state.currentUser||'Someone',ts:now(),text});
+  state.log=state.log.slice(0,200);
+}
+
+/* ========================================================
+   SCHEDULE RENDER
+   ======================================================== */
+function blocksPerDay(){return (state.coach.close-state.coach.open)*2;}
+function openMin(){return state.coach.open*60;}
+
+function renderSchedule(){
+  const grid=document.getElementById('sgrid');
+  const days = view==='week'
+    ? Array.from({length:7},(_,i)=>addDays(cursor,i)).filter(d=>state.coach.days.includes(d.getDay()))
+    : [cursor];
+  const nb=blocksPerDay();
+  grid.style.gridTemplateColumns=`52px repeat(${days.length}, 1fr)`;
+  // rows: 1 header + nb
+  grid.innerHTML='';
+
+  // header corner
+  const corner=document.createElement('div');corner.className='corner';corner.style.gridColumn='1';corner.style.gridRow='1';grid.appendChild(corner);
+
+  const today=ds(new Date());
+  days.forEach((d,ci)=>{
+    const h=document.createElement('div');
+    h.className='day-head'+(ds(d)===today?' today':'');
+    h.style.gridColumn=(ci+2);h.style.gridRow='1';
+    const away=awayClients(ds(d));
+    h.innerHTML=`<div class="dow">${DOW[d.getDay()]}</div><div class="dnum">${d.getDate()} ${d.toLocaleDateString(undefined,{month:'short'})}</div>`
+      +(away.length?`<div class="away">Away: ${away.join(', ')}</div>`:'');
+    grid.appendChild(h);
+  });
+
+  // time labels
+  for(let b=0;b<nb;b++){
+    const min=openMin()+b*30;
+    const lab=document.createElement('div');
+    lab.className='time-label'+(min%60===0?' hour':'');
+    lab.style.gridColumn='1';lab.style.gridRow=(b+2);
+    lab.textContent=min%60===0?fmtTime(min):'';
+    grid.appendChild(lab);
+  }
+
+  const showOpen=document.getElementById('showOpen').checked;
+
+  days.forEach((d,ci)=>{
+    const dateStr=ds(d);
+    const inst=getInstances(dateStr);
+    const covered=new Array(nb).fill(false);
+    // place bookings
+    inst.forEach(it=>{
+      const sb=Math.round((it.startMin-openMin())/30);
+      const span=Math.max(1,Math.round(it.durationMin/30));
+      if(sb<0||sb>=nb)return;
+      for(let k=sb;k<sb+span&&k<nb;k++)covered[k]=true;
+      const c=client(it.clientId);
+      const el=document.createElement('div');
+      el.style.gridColumn=(ci+2);
+      el.style.gridRow=`${sb+2} / span ${Math.min(span,nb-sb)}`;
+      if(it.kind==='break'){
+        el.className='booking break';
+        el.innerHTML=`<div class="bname">${escapeHtml(it.label)}</div>`
+          +`<div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`;
+        el.addEventListener('click',()=>openBreakModal(it));
+        grid.appendChild(el);
+        return;
+      }
+      const col=(c&&c.color)||'#003087';
+      const cls=it.kind==='moved'?'moved':(c&&c.type==='casual'?'casual':'regular');
+      el.className='booking '+cls;
+      el.style.background=col;
+      el.style.color=textOn(col);
+      el.draggable=true;
+      const tag=it.kind==='moved'?'Moved':(it.kind==='oneoff'?'One-off':'');
+      el.innerHTML=`<div class="bname">${clientName(it.clientId)}</div>`
+        +`<div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`
+        +(tag?`<div class="btag">${tag}</div>`:'');
+      el.addEventListener('click',()=>openBookingModal(it));
+      el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify(it));dragData=it;});
+      grid.appendChild(el);
+    });
+    // empty slots + open-run labels
+    let run=0,runStart=0;
+    for(let b=0;b<nb;b++){
+      const min=openMin()+b*30;
+      const slot=document.createElement('div');
+      slot.className='slot'+(min%60===0?' hour':'');
+      slot.style.gridColumn=(ci+2);slot.style.gridRow=(b+2);
+      if(covered[b]){slot.style.visibility='hidden';slot.style.pointerEvents='none';}
+      else{
+        slot.addEventListener('click',()=>openAddModal(dateStr,min));
+        slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover');});
+        slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'));
+        slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');handleDrop(dateStr,min);});
+      }
+      grid.appendChild(slot);
+      // open-run accounting
+      if(showOpen){
+        if(!covered[b]){if(run===0)runStart=b;run++;}
+        if(covered[b]||b===nb-1){
+          const len=(!covered[b]&&b===nb-1)?run:run;
+          if(run>=2){ // >=60 min free
+            const startMinR=openMin()+runStart*30;
+            const lbl=document.createElement('div');
+            lbl.className='open-run';
+            lbl.textContent=`Open ${run*30>=60?(run/2)+'h':run*30+'m'}`;
+            // attach to the first slot of the run via absolute pos: place a marker cell
+            const marker=document.createElement('div');
+            marker.style.gridColumn=(ci+2);marker.style.gridRow=(runStart+2);
+            marker.style.position='relative';marker.style.pointerEvents='none';
+            marker.appendChild(lbl);
+            grid.appendChild(marker);
+          }
+          run=0;
+        }
+      }
+    }
+  });
+
+  document.getElementById('navDate').textContent = view==='week'
+    ? `${cursor.toLocaleDateString(undefined,{day:'numeric',month:'short'})} – ${addDays(cursor,6).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}`
+    : cursor.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  renderAvailability(days);
+}
+
+/* free gaps (>= min length) across the visible days */
+function renderAvailability(days){
+  const nb=blocksPerDay();
+  const minBlocks=Math.round(parseInt(document.getElementById('availMin').value,10)/30);
+  const out=days.map(d=>{
+    const dateStr=ds(d);
+    const covered=new Array(nb).fill(false);
+    getInstances(dateStr).forEach(it=>{
+      const sb=Math.round((it.startMin-openMin())/30);
+      const span=Math.max(1,Math.round(it.durationMin/30));
+      for(let k=sb;k<sb+span&&k<nb;k++)if(k>=0)covered[k]=true;
+    });
+    const runs=[];let run=0,start=0;
+    for(let b=0;b<=nb;b++){
+      if(b<nb&&!covered[b]){if(run===0)start=b;run++;}
+      else{if(run>=minBlocks)runs.push([start,run]);run=0;}
+    }
+    const label=d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+    if(!runs.length)return `<div class="avail-day"><span class="ad-date">${label}</span><span class="avail-none">Fully booked</span></div>`;
+    const chips=runs.map(([s,len])=>{
+      const from=openMin()+s*30, to=from+len*30;
+      return `<span class="avail-chip">${fmtTime(from)}–${fmtTime(to)}</span>`;
+    }).join('');
+    return `<div class="avail-day"><span class="ad-date">${label}</span><span>${chips}</span></div>`;
+  }).join('');
+  document.getElementById('availList').innerHTML=out||'<div class="empty-state">No working days in view.</div>';
+}
+
+let dragData=null;
+function handleDrop(dateStr,min){
+  if(!dragData)return;
+  if(!requireUser())return;
+  const it=dragData;dragData=null;
+  if(overlaps(dateStr,min,it.durationMin,it)){toast('That slot is already taken');return;}
+  const who=clientName(it.clientId);
+  if(it.kind==='regular'){
+    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:dateStr,newStartMin:min,newDurationMin:it.durationMin});
+    logEvent(`Moved ${who}'s lesson from ${it.date} ${fmtTime(it.startMin)} to ${dateStr} ${fmtTime(min)} (this week only)`);
+  }else if(it.kind==='moved'){
+    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
+    if(ex){ex.newDate=dateStr;ex.newStartMin=min;}
+    logEvent(`Re-moved ${who}'s lesson to ${dateStr} ${fmtTime(min)}`);
+  }else{
+    const o=state.oneoffs.find(x=>x.id===it.oneoffId);
+    if(o){o.date=dateStr;o.startMin=min;}
+    logEvent(`Moved ${who}'s one-off lesson to ${dateStr} ${fmtTime(min)}`);
+  }
+  save();renderSchedule();toast('Lesson moved');
+}
+
+/* ========================================================
+   MODALS
+   ======================================================== */
+const overlay=document.getElementById('overlay');
+function openModal(html){document.getElementById('modal').innerHTML=html;overlay.classList.add('open');}
+function closeModal(){overlay.classList.remove('open');}
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+
+function requireUser(){
+  if(!state.currentUser){toast('Pick who you are first (top right)');return false;}
+  return true;
+}
+
+function clientOptions(sel){
+  return state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name))
+    .map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${c.name}${c.type==='casual'?' (casual)':''}</option>`).join('');
+}
+
+function openAddModal(dateStr,min){
+  if(!requireUser())return;
+  if(!state.clients.length){toast('Add a client first');switchTab('clients');return;}
+  openModal(`
+    <div class="modal-head">Book a lesson<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="hint">${pd(dateStr).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})} · ${fmtTime(min)}</div>
+      <label class="field">Client<select id="m_client">${clientOptions()}</select></label>
+      <div class="row">
+        <label class="field">Duration<select id="m_dur"><option value="60">1 hour</option><option value="90">1.5 hours</option></select></label>
+        <label class="field">Start<input type="time" id="m_start" value="${fmtTime(min)}" step="1800"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="m_repeat"> Repeat every ${DOW_FULL[pd(dateStr).getDay()]} (regular slot)</label>
+      <label class="field">Note (optional)<input type="text" id="m_note" placeholder="e.g. booked by phone"></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="confirmAdd('${dateStr}')">Book lesson</button>
+    </div>`);
+}
+function confirmAdd(dateStr){
+  const cid=document.getElementById('m_client').value;
+  const dur=parseInt(document.getElementById('m_dur').value,10);
+  const[h,m]=document.getElementById('m_start').value.split(':').map(Number);
+  const start=h*60+m;
+  const repeat=document.getElementById('m_repeat').checked;
+  const note=document.getElementById('m_note').value.trim();
+  if(start<openMin()||start+dur>state.coach.close*60){toast('Outside working hours');return;}
+  if(overlaps(dateStr,start,dur)){toast('That slot is already taken');return;}
+  const who=clientName(cid);
+  if(repeat){
+    state.regulars.push({id:uid(),clientId:cid,weekday:pd(dateStr).getDay(),startMin:start,durationMin:dur,startDate:dateStr,endDate:null});
+    logEvent(`Added ${who} as a regular every ${DOW_FULL[pd(dateStr).getDay()]} at ${fmtTime(start)}`);
+  }else{
+    state.oneoffs.push({id:uid(),clientId:cid,date:dateStr,startMin:start,durationMin:dur,note});
+    logEvent(`Booked ${who} on ${dateStr} at ${fmtTime(start)}`);
+  }
+  save();closeModal();renderSchedule();toast('Lesson booked');
+}
+
+function openBookingModal(it){
+  const who=clientName(it.clientId);
+  const typeLabel=it.kind==='regular'?'Regular weekly slot':(it.kind==='moved'?'Moved (this week)':'One-off');
+  openModal(`
+    <div class="modal-head">${who}<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="hint">${typeLabel} · ${pd(it.date).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</div>
+      <div class="row">
+        <label class="field">New date<input type="date" id="e_date" value="${it.date}"></label>
+      </div>
+      <div class="row">
+        <label class="field">Start<input type="time" id="e_start" value="${fmtTime(it.startMin)}" step="1800"></label>
+        <label class="field">Duration<select id="e_dur"><option value="60" ${it.durationMin===60?'selected':''}>1 hour</option><option value="90" ${it.durationMin===90?'selected':''}>1.5 hours</option></select></label>
+      </div>
+      ${it.kind==='regular'?'<div class="hint">Changes here apply to this week only. To change the standing slot for every week, edit it under Clients.</div>':''}
+    </div>
+    <div class="modal-foot">
+      <button class="danger btn sm" onclick='cancelOccurrence(${JSON.stringify(it)})'>${it.kind==='oneoff'?'Delete':'Cancel this occurrence'}</button>
+      <div style="flex:1"></div>
+      <button class="btn ghost sm" onclick="closeModal()">Close</button>
+      <button class="btn" onclick='applyOccurrence(${JSON.stringify(it)})'>Save changes</button>
+    </div>`);
+}
+function applyOccurrence(it){
+  if(!requireUser())return;
+  const nd=document.getElementById('e_date').value;
+  const[h,m]=document.getElementById('e_start').value.split(':').map(Number);
+  const start=h*60+m;
+  const dur=parseInt(document.getElementById('e_dur').value,10);
+  if(start<openMin()||start+dur>state.coach.close*60){toast('Outside working hours');return;}
+  if(overlaps(nd,start,dur,it)){toast('That slot is already taken');return;}
+  const who=clientName(it.clientId);
+  if(it.kind==='regular'){
+    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:nd,newStartMin:start,newDurationMin:dur});
+  }else if(it.kind==='moved'){
+    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
+    if(ex){ex.newDate=nd;ex.newStartMin=start;ex.newDurationMin=dur;}
+  }else{
+    const o=state.oneoffs.find(x=>x.id===it.oneoffId);
+    if(o){o.date=nd;o.startMin=start;o.durationMin=dur;}
+  }
+  logEvent(`Updated ${who}'s lesson → ${nd} ${fmtTime(start)} (${dur} min)`);
+  save();closeModal();renderSchedule();toast('Saved');
+}
+function cancelOccurrence(it){
+  if(!requireUser())return;
+  const who=clientName(it.clientId);
+  if(it.kind==='regular'){
+    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'cancel'});
+    logEvent(`Cancelled ${who}'s lesson on ${it.date} (this week)`);
+  }else if(it.kind==='moved'){
+    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
+    if(ex)ex.type='cancel'; // keep originalDate so it stays suppressed
+    logEvent(`Cancelled ${who}'s moved lesson`);
+  }else{
+    state.oneoffs=state.oneoffs.filter(o=>o.id!==it.oneoffId);
+    logEvent(`Deleted ${who}'s one-off lesson on ${it.date}`);
+  }
+  save();closeModal();renderSchedule();toast('Removed');
+}
+
+/* ---------- breaks ---------- */
+function openBreakModal(it){
+  // edit existing break
+  const b=(state.breaks||[]).find(x=>x.id===it.breakId);if(!b)return;
+  openModal(`
+    <div class="modal-head">Break<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="hint">${b.recurring?('Every '+DOW_FULL[b.weekday]):pd(b.date).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</div>
+      <label class="field">Label<input type="text" id="bk_label" value="${escapeHtml(b.label||'Break')}"></label>
+      <div class="row">
+        <label class="field">Start<input type="time" id="bk_start" value="${fmtTime(b.startMin)}" step="1800"></label>
+        <label class="field">Duration<select id="bk_dur">
+          <option value="30" ${b.durationMin===30?'selected':''}>30 min</option>
+          <option value="60" ${b.durationMin===60?'selected':''}>1 hour</option>
+          <option value="90" ${b.durationMin===90?'selected':''}>1.5 hours</option>
+          <option value="120" ${b.durationMin===120?'selected':''}>2 hours</option>
+        </select></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="danger btn sm" onclick="deleteBreak('${b.id}')">Delete break</button>
+      <div style="flex:1"></div>
+      <button class="btn ghost sm" onclick="closeModal()">Close</button>
+      <button class="btn" onclick="saveBreakEdit('${b.id}')">Save</button>
+    </div>`);
+}
+function saveBreakEdit(id){
+  if(!requireUser())return;
+  const b=state.breaks.find(x=>x.id===id);if(!b)return;
+  const[h,m]=document.getElementById('bk_start').value.split(':').map(Number);
+  b.startMin=h*60+m;
+  b.durationMin=parseInt(document.getElementById('bk_dur').value,10);
+  b.label=document.getElementById('bk_label').value.trim()||'Break';
+  logEvent(`Updated break "${b.label}"`);
+  save();closeModal();renderSchedule();toast('Saved');
+}
+function deleteBreak(id){
+  const b=state.breaks.find(x=>x.id===id);
+  state.breaks=state.breaks.filter(x=>x.id!==id);
+  logEvent(`Removed break "${b?b.label:''}"`);
+  save();closeModal();renderSchedule();toast('Break removed');
+}
+function openAddBreakModal(){
+  if(!requireUser())return;
+  const def=ds(cursor);
+  openModal(`
+    <div class="modal-head">Add a break<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="hint">Block the coach's lunch or rest time so nothing can be booked over it.</div>
+      <label class="field">Label<input type="text" id="bk_label" value="Lunch" placeholder="e.g. Lunch, Admin"></label>
+      <div class="row">
+        <label class="field">Start<input type="time" id="bk_start" value="13:00" step="1800"></label>
+        <label class="field">Duration<select id="bk_dur">
+          <option value="30">30 min</option>
+          <option value="60" selected>1 hour</option>
+          <option value="90">1.5 hours</option>
+          <option value="120">2 hours</option>
+        </select></label>
+      </div>
+      <label class="field">Repeat
+        <select id="bk_repeat">
+          <option value="daily">Every working day</option>
+          <option value="weekly">Every week on one day</option>
+          <option value="once">Just this date</option>
+        </select>
+      </label>
+      <div class="row">
+        <label class="field" id="bk_dayWrap" style="display:none">Day<select id="bk_day">${DOW.map((d,i)=>`<option value="${i}" ${i===pd(def).getDay()?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
+        <label class="field" id="bk_dateWrap" style="display:none">Date<input type="date" id="bk_date" value="${def}"></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn bronze" onclick="confirmBreak()">Add break</button>
+    </div>`);
+  const rep=document.getElementById('bk_repeat');
+  const sync=()=>{
+    document.getElementById('bk_dayWrap').style.display=rep.value==='weekly'?'flex':'none';
+    document.getElementById('bk_dateWrap').style.display=rep.value==='once'?'flex':'none';
+  };
+  rep.addEventListener('change',sync);sync();
+}
+function confirmBreak(){
+  if(!requireUser())return;
+  const label=document.getElementById('bk_label').value.trim()||'Break';
+  const[h,m]=document.getElementById('bk_start').value.split(':').map(Number);
+  const start=h*60+m;
+  const dur=parseInt(document.getElementById('bk_dur').value,10);
+  const rep=document.getElementById('bk_repeat').value;
+  const base=ds(new Date());
+  if(rep==='daily'){
+    state.coach.days.forEach(wd=>state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:start,durationMin:dur,label,startDate:base,endDate:null}));
+    logEvent(`Added daily break "${label}" at ${fmtTime(start)}`);
+  }else if(rep==='weekly'){
+    const wd=parseInt(document.getElementById('bk_day').value,10);
+    state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:start,durationMin:dur,label,startDate:base,endDate:null});
+    logEvent(`Added weekly break "${label}" on ${DOW_FULL[wd]} at ${fmtTime(start)}`);
+  }else{
+    const date=document.getElementById('bk_date').value;
+    state.breaks.push({id:uid(),recurring:false,date,startMin:start,durationMin:dur,label});
+    logEvent(`Added break "${label}" on ${date} at ${fmtTime(start)}`);
+  }
+  save();closeModal();renderSchedule();toast('Break added');
+}
+function renderClients(){
+  const tb=document.getElementById('clientRows');
+  if(!state.clients.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty-state">No clients yet. Add the coach's regulars to get started.</div></td></tr>`;return;}
+  tb.innerHTML=state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{
+    const slots=state.regulars.filter(r=>r.clientId===c.id);
+    const hols=state.holidays.filter(h=>h.clientId===c.id);
+    return `<tr>
+      <td><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${c.color||'#003087'};margin-right:7px;vertical-align:middle"></span><b style="color:var(--mple)">${c.name}</b></td>
+      <td><span class="pill ${c.type}">${c.type==='casual'?'Casual':'Regular'}</span></td>
+      <td>${c.phone||'<span class="muted">—</span>'}</td>
+      <td>${slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)} <span class="muted">(${s.durationMin}m)</span>`).join('<br>'):'<span class="muted">—</span>'}</td>
+      <td>${hols.length?hols.map(h=>`<span class="pill away">${h.start} → ${h.end}</span>`).join(' '):'<span class="muted">—</span>'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button>
+        <button class="btn bronze sm" onclick="addHoliday('${c.id}')">Holiday</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function editClient(id){
+  const c=id?client(id):null;
+  const slots=c?state.regulars.filter(r=>r.clientId===c.id):[];
+  openModal(`
+    <div class="modal-head">${c?'Edit client':'Add client'}<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <label class="field">Name<input type="text" id="c_name" value="${c?c.name:''}" placeholder="Full name"></label>
+      <div class="row">
+        <label class="field">Type<select id="c_type">
+          <option value="regular" ${c&&c.type==='regular'?'selected':''}>Regular</option>
+          <option value="casual" ${c&&c.type==='casual'?'selected':''}>Casual</option>
+        </select></label>
+        <label class="field">Phone<input type="tel" id="c_phone" value="${c?c.phone||'':''}" placeholder="Optional"></label>
+      </div>
+      <div>
+        <div class="muted" style="margin-bottom:6px">Colour on the schedule</div>
+        <div id="colorPick" style="display:flex;gap:7px;flex-wrap:wrap">
+          ${PALETTE.map(p=>`<button type="button" class="cswatch" data-color="${p}" style="width:26px;height:26px;border-radius:50%;background:${p};border:2px solid ${(c?c.color:nextColor())===p?'#1d1d1d':'transparent'};cursor:pointer"></button>`).join('')}
+        </div>
+      </div>
+      ${c?`<div class="hint">Weekly slots for ${c.name}:</div>
+        <div id="slotEdit">${slots.map(s=>slotRow(s)).join('')||'<div class="muted" style="font-size:12px">No standing slots. Add one below or book on the schedule and tick "repeat".</div>'}</div>
+        <button class="btn ghost sm" onclick="addSlotRow()">+ Add weekly slot</button>`:'<div class="hint">Save first, then add weekly slots or book on the schedule.</div>'}
+    </div>
+    <div class="modal-foot">
+      ${c?`<button class="danger btn sm" onclick="deleteClient('${c.id}')">Delete client</button>`:''}
+      <div style="flex:1"></div>
+      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveClient('${id||''}')">Save</button>
+    </div>`);
+  selectedColor=c?c.color:nextColor();
+  document.querySelectorAll('#colorPick .cswatch').forEach(sw=>{
+    sw.addEventListener('click',()=>{
+      selectedColor=sw.dataset.color;
+      document.querySelectorAll('#colorPick .cswatch').forEach(x=>x.style.border='2px solid transparent');
+      sw.style.border='2px solid #1d1d1d';
+    });
+  });
+}
+let selectedColor=PALETTE[0];
+function slotRow(s){
+  return `<div class="row slot-row" data-id="${s?s.id:''}" style="margin-bottom:8px;align-items:flex-end">
+    <label class="field" style="flex:1.2">Day<select class="s_day">${DOW.map((d,i)=>`<option value="${i}" ${s&&s.weekday===i?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
+    <label class="field">Time<input type="time" class="s_time" value="${s?fmtTime(s.startMin):'17:00'}" step="1800"></label>
+    <label class="field">Length<select class="s_dur"><option value="60" ${s&&s.durationMin===60?'selected':''}>1h</option><option value="90" ${s&&s.durationMin===90?'selected':''}>1.5h</option></select></label>
+    <button class="btn ghost sm" style="flex:0 0 auto" onclick="this.closest('.slot-row').remove()">✕</button>
+  </div>`;
+}
+function addSlotRow(){const w=document.getElementById('slotEdit');const div=document.createElement('div');div.innerHTML=slotRow(null);w.appendChild(div.firstElementChild);}
+function saveClient(id){
+  if(!requireUser())return;
+  const name=document.getElementById('c_name').value.trim();
+  if(!name){toast('Name required');return;}
+  const type=document.getElementById('c_type').value;
+  const phone=document.getElementById('c_phone').value.trim();
+  let c;
+  if(id){c=client(id);c.name=name;c.type=type;c.phone=phone;c.color=selectedColor;}
+  else{c={id:uid(),name,type,phone,color:selectedColor||nextColor()};state.clients.push(c);logEvent(`Added client ${name}`);}
+  // rebuild slots for this client from the editor
+  if(id&&document.getElementById('slotEdit')){
+    state.regulars=state.regulars.filter(r=>r.clientId!==id);
+    document.querySelectorAll('#slotEdit .slot-row').forEach(row=>{
+      const wd=parseInt(row.querySelector('.s_day').value,10);
+      const[h,m]=row.querySelector('.s_time').value.split(':').map(Number);
+      const dur=parseInt(row.querySelector('.s_dur').value,10);
+      state.regulars.push({id:row.dataset.id||uid(),clientId:id,weekday:wd,startMin:h*60+m,durationMin:dur,startDate:ds(new Date()),endDate:null});
+    });
+    logEvent(`Updated ${name}'s weekly slots`);
+  }
+  save();closeModal();renderClients();renderSchedule();renderAnalytics();toast('Saved');
+}
+function deleteClient(id){
+  const c=client(id);
+  if(!confirm(`Delete ${c.name} and all their lessons? This can't be undone.`))return;
+  state.clients=state.clients.filter(x=>x.id!==id);
+  state.regulars=state.regulars.filter(r=>r.clientId!==id);
+  state.oneoffs=state.oneoffs.filter(o=>o.clientId!==id);
+  state.holidays=state.holidays.filter(h=>h.clientId!==id);
+  logEvent(`Deleted client ${c.name}`);
+  save();closeModal();renderClients();renderSchedule();renderAnalytics();
+}
+function addHoliday(id){
+  const c=client(id);
+  openModal(`
+    <div class="modal-head">Holiday · ${c.name}<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="hint">Their regular slots are freed automatically during this range so others can book them.</div>
+      <div class="row">
+        <label class="field">From<input type="date" id="h_start" value="${ds(new Date())}"></label>
+        <label class="field">To<input type="date" id="h_end" value="${ds(new Date())}"></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveHoliday('${id}')">Add holiday</button>
+    </div>`);
+}
+function saveHoliday(id){
+  if(!requireUser())return;
+  const s=document.getElementById('h_start').value,e=document.getElementById('h_end').value;
+  if(!s||!e||e<s){toast('Check the dates');return;}
+  state.holidays.push({id:uid(),clientId:id,start:s,end:e});
+  logEvent(`Marked ${clientName(id)} away ${s} → ${e}`);
+  save();closeModal();renderClients();renderSchedule();toast('Holiday added');
+}
+
+/* ========================================================
+   ANALYTICS
+   ======================================================== */
+function renderAnalytics(){
+  const days=state.coach.days.length;
+  const availPerWeek=days*(state.coach.close-state.coach.open);
+  const bookedPerWeek=state.regulars.reduce((s,r)=>s+r.durationMin/60,0);
+  const util=availPerWeek?Math.round(bookedPerWeek/availPerWeek*100):0;
+  const regulars=state.clients.filter(c=>c.type==='regular').length;
+  const cards=[
+    {n:state.clients.length,l:'Clients'},
+    {n:bookedPerWeek.toFixed(1)+'h',l:'Booked / week'},
+    {n:util+'%',l:'Coach utilisation'},
+    {n:(availPerWeek-bookedPerWeek).toFixed(1)+'h',l:'Open / week'},
+  ];
+  document.getElementById('statCards').innerHTML=cards.map(c=>`<div class="panel" style="margin:0"><div class="stat">${c.n}</div><div class="stat-label">${c.l}</div></div>`).join('');
+
+  const rows=state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{
+    const slots=state.regulars.filter(r=>r.clientId===c.id);
+    const hrs=slots.reduce((s,r)=>s+r.durationMin/60,0);
+    const when=slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)}`).join(', '):'<span class="muted">No standing slot</span>';
+    return `<tr>
+      <td><b style="color:var(--mple)">${c.name}</b></td>
+      <td><span class="pill ${c.type}">${c.type==='casual'?'Casual':'Regular'}</span></td>
+      <td>${hrs?hrs.toFixed(1)+'h':'—'}</td>
+      <td>${slots.length||'—'}</td>
+      <td>${when}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('analyticRows').innerHTML=rows||`<tr><td colspan="5"><div class="empty-state">No data yet.</div></td></tr>`;
+}
+
+/* ========================================================
+   NOTES
+   ======================================================== */
+function renderNotes(){
+  const list=document.getElementById('noteList');
+  if(!state.notes.length){list.innerHTML=`<div class="empty-state">No notes. Leave one for the next person on the desk.</div>`;}
+  else{
+    list.innerHTML=state.notes.map(n=>`
+      <div class="note ${n.read?'':'unread'}" onclick="toggleNote('${n.id}')">
+        <div class="meta"><b>${n.author}</b><span>${fmtStamp(n.ts)} ${n.read?'':'· unread'}</span></div>
+        <div>${escapeHtml(n.text)}</div>
+        <div style="text-align:right;margin-top:6px"><button class="btn ghost sm" onclick="event.stopPropagation();deleteNote('${n.id}')">Delete</button></div>
+      </div>`).join('');
+  }
+  const unread=state.notes.filter(n=>!n.read).length;
+  document.getElementById('noteBadge').textContent=unread?`(${unread})`:'';
+}
+function addNote(){
+  if(!requireUser())return;
+  const t=document.getElementById('noteText').value.trim();
+  if(!t)return;
+  state.notes.unshift({id:uid(),author:state.currentUser,text:t,ts:now(),read:false});
+  document.getElementById('noteText').value='';
+  save();renderNotes();toast('Note posted');
+}
+function toggleNote(id){const n=state.notes.find(x=>x.id===id);if(n){n.read=!n.read;save();renderNotes();}}
+function deleteNote(id){state.notes=state.notes.filter(n=>n.id!==id);save();renderNotes();}
+function escapeHtml(s){return s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+
+/* ========================================================
+   ACTIVITY
+   ======================================================== */
+function renderLog(){
+  const l=document.getElementById('logList');
+  if(!state.log.length){l.innerHTML=`<div class="empty-state">No activity yet.</div>`;return;}
+  l.innerHTML=state.log.map(e=>`<div class="log-row"><time>${fmtStamp(e.ts)}</time><div><b style="color:var(--mple)">${e.author}</b> · ${escapeHtml(e.text)}</div></div>`).join('');
+}
+
+/* ========================================================
+   SETTINGS
+   ======================================================== */
+function renderSettings(){
+  document.getElementById('setCoach').value=state.coach.name;
+  const o=document.getElementById('setOpen'),c=document.getElementById('setClose');
+  o.innerHTML=c.innerHTML='';
+  for(let h=5;h<=22;h++){o.innerHTML+=`<option value="${h}" ${h===state.coach.open?'selected':''}>${fmtTime(h*60)}</option>`;}
+  for(let h=6;h<=23;h++){c.innerHTML+=`<option value="${h}" ${h===state.coach.close?'selected':''}>${fmtTime(h*60)}</option>`;}
+  document.getElementById('setDays').innerHTML=DOW.map((d,i)=>`<label class="chk" style="background:var(--foam);padding:6px 10px;border-radius:var(--r);border:1px solid var(--line)"><input type="checkbox" class="d_chk" value="${i}" ${state.coach.days.includes(i)?'checked':''}> ${d}</label>`).join('');
+  renderStaff();
+}
+function saveSettings(){
+  state.coach.name=document.getElementById('setCoach').value.trim()||'Coach';
+  state.coach.open=parseInt(document.getElementById('setOpen').value,10);
+  state.coach.close=parseInt(document.getElementById('setClose').value,10);
+  const days=[...document.querySelectorAll('.d_chk:checked')].map(x=>parseInt(x.value,10));
+  state.coach.days=days.length?days:[1,2,3,4,5,6];
+  if(state.coach.close<=state.coach.open){toast('Close must be after open');return;}
+  save();renderSchedule();renderAnalytics();toast('Settings saved');
+}
+function renderStaff(){
+  document.getElementById('staffList').innerHTML=state.staff.map(s=>`<span class="pill" style="background:var(--shell);color:var(--mple)">${s} <button onclick="removeStaff('${s}')" style="background:none;border:none;color:var(--bronze);cursor:pointer">✕</button></span>`).join('');
+  const sel=document.getElementById('userSelect');
+  sel.innerHTML=state.staff.map(s=>`<option ${s===state.currentUser?'selected':''}>${s}</option>`).join('');
+}
+function addStaff(){
+  const v=document.getElementById('newStaff').value.trim();
+  if(!v)return;
+  if(!state.staff.includes(v))state.staff.push(v);
+  document.getElementById('newStaff').value='';
+  if(!state.currentUser)state.currentUser=v;
+  save();renderStaff();
+}
+function removeStaff(s){
+  state.staff=state.staff.filter(x=>x!==s);
+  if(state.currentUser===s)state.currentUser=state.staff[0]||'';
+  save();renderStaff();
+}
+
+/* ---------- backup ---------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`racket-schedule-${ds(new Date())}.json`;a.click();
+}
+function importData(file){
+  const r=new FileReader();
+  r.onload=()=>{try{state=Object.assign(defaultState(),JSON.parse(r.result));save();renderAll();toast('Data imported');}catch(e){toast('Invalid file');}};
+  r.readAsText(file);
+}
+
+/* ========================================================
+   TABS / WIRING
+   ======================================================== */
+function switchTab(tab){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='clients')renderClients();
+  if(tab==='analytics')renderAnalytics();
+  if(tab==='notes')renderNotes();
+  if(tab==='activity')renderLog();
+  if(tab==='settings')renderSettings();
+}
+function renderAll(){renderSchedule();renderClients();renderAnalytics();renderNotes();renderLog();renderSettings();}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+document.getElementById('viewWeek').addEventListener('click',()=>{view='week';cursor=startOfWeek(cursor);document.getElementById('viewWeek').classList.add('active');document.getElementById('viewDay').classList.remove('active');renderSchedule();});
+document.getElementById('viewDay').addEventListener('click',()=>{view='day';document.getElementById('viewDay').classList.add('active');document.getElementById('viewWeek').classList.remove('active');renderSchedule();});
+document.getElementById('prevBtn').addEventListener('click',()=>{cursor=addDays(cursor,view==='week'?-7:-1);renderSchedule();});
+document.getElementById('nextBtn').addEventListener('click',()=>{cursor=addDays(cursor,view==='week'?7:1);renderSchedule();});
+document.getElementById('todayBtn').addEventListener('click',()=>{cursor=view==='week'?startOfWeek(new Date()):new Date();renderSchedule();});
+document.getElementById('jumpDate').addEventListener('change',e=>{const d=pd(e.target.value);cursor=view==='week'?startOfWeek(d):d;renderSchedule();});
+document.getElementById('showOpen').addEventListener('change',renderSchedule);
+document.getElementById('availMin').addEventListener('change',renderSchedule);
+document.getElementById('addBreakBtn').addEventListener('click',openAddBreakModal);
+document.getElementById('addClientBtn').addEventListener('click',()=>editClient(null));
+document.getElementById('addNoteBtn').addEventListener('click',addNote);
+document.getElementById('saveSettings').addEventListener('click',saveSettings);
+document.getElementById('addStaffBtn').addEventListener('click',addStaff);
+document.getElementById('userSelect').addEventListener('change',e=>{state.currentUser=e.target.value;save();});
+document.getElementById('exportBtn').addEventListener('click',exportData);
+document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importData(e.target.files[0]);});
+
+/* ---------- seed a tiny demo (local-only mode, first run) ---------- */
+if(!API_URL && !state.clients.length && !localStorage.getItem(KEY)){
+  state.staff=['Reception'];state.currentUser='Reception';
+  const a={id:uid(),name:'Andreas P.',type:'regular',phone:'',color:PALETTE[0]};
+  const m={id:uid(),name:'Maria K.',type:'regular',phone:'',color:PALETTE[2]};
+  const g={id:uid(),name:'Guest (casual)',type:'casual',phone:'',color:PALETTE[4]};
+  state.clients.push(a,m,g);
+  const base=ds(new Date());
+  state.regulars.push(
+    {id:uid(),clientId:a.id,weekday:2,startMin:17*60,durationMin:60,startDate:base,endDate:null},
+    {id:uid(),clientId:a.id,weekday:4,startMin:17*60,durationMin:60,startDate:base,endDate:null},
+    {id:uid(),clientId:m.id,weekday:3,startMin:10*60,durationMin:90,startDate:base,endDate:null}
+  );
+  state.coach.days.forEach(wd=>state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:13*60,durationMin:60,label:'Lunch',startDate:base,endDate:null}));
+  logEvent('Started the schedule');
+  save();
+}
+
+renderAll();
+startSync();
+</script>
+</body>
+</html>
