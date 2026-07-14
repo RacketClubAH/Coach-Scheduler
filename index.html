@@ -1162,11 +1162,109 @@ function renderClients(){
       <td>${slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)} <span class="muted">(${s.durationMin}m${s.season?', '+s.season:''})</span>`).join('<br>'):'<span class="muted">—</span>'}</td>
       <td>${hols.length?hols.map(h=>`<span class="pill away">${h.start} → ${h.end}</span>`).join(' '):'<span class="muted">—</span>'}</td>
       <td style="white-space:nowrap">
+        <button class="btn sm" onclick="openShareModal('${c.id}')">Share</button>
         <button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button>
         <button class="btn bronze sm" onclick="addHoliday('${c.id}')">Holiday</button>
       </td>
     </tr>`;
   }).join('');
+}
+
+/* ---------- share a client's upcoming schedule ---------- */
+function clientLessons(cid,weeks){
+  const start=new Date();start.setHours(0,0,0,0);
+  const out=[];
+  for(let i=0;i<weeks*7;i++){
+    const dateStr=ds(addDays(start,i));
+    getInstances(dateStr).forEach(it=>{
+      if(it.kind==='break')return;
+      if(it.clientId!==cid)return;
+      out.push({date:dateStr,startMin:it.startMin,durationMin:it.durationMin});
+    });
+  }
+  return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.startMin-b.startMin);
+}
+function buildScheduleMessage(cid,weeks){
+  const c=client(cid);
+  const lessons=clientLessons(cid,weeks);
+  const pattern=state.regulars.filter(r=>r.clientId===cid)
+    .map(r=>`${DOW_FULL[r.weekday]} ${fmtTime(r.startMin)}${r.season?' ('+r.season+')':''}`).join(', ');
+  let msg=`Aphrodite Hills Racket Club\nYour tennis lessons with ${state.coach.name}\n\n`;
+  msg+=`Hi ${c?c.name.split(' ')[0]:''}, here are your upcoming lessons`;
+  msg+=weeks?` (next ${weeks} weeks):\n\n`:':\n\n';
+  if(!lessons.length){
+    msg+='No lessons scheduled in this period.\n';
+  }else{
+    lessons.forEach(l=>{
+      const d=pd(l.date);
+      msg+=`• ${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})} — ${fmtTime(l.startMin)}–${fmtTime(l.startMin+l.durationMin)}\n`;
+    });
+  }
+  if(pattern)msg+=`\nYour regular slot: ${pattern}\n`;
+  msg+=`\nSee you on court!`;
+  return msg;
+}
+function buildICS(cid,weeks){
+  const c=client(cid);
+  const lessons=clientLessons(cid,weeks);
+  const dt=(dateStr,min)=>dateStr.replace(/-/g,'')+'T'+String(Math.floor(min/60)).padStart(2,'0')+String(min%60).padStart(2,'0')+'00';
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Aphrodite Hills Racket Club//Scheduler//EN\r\nCALSCALE:GREGORIAN\r\n';
+  lessons.forEach((l,i)=>{
+    ics+='BEGIN:VEVENT\r\n';
+    ics+=`UID:${cid}-${l.date}-${l.startMin}-${i}@aphroditehills\r\n`;
+    ics+=`DTSTAMP:${stamp}\r\n`;
+    ics+=`DTSTART:${dt(l.date,l.startMin)}\r\n`;
+    ics+=`DTEND:${dt(l.date,l.startMin+l.durationMin)}\r\n`;
+    ics+=`SUMMARY:Tennis lesson — ${state.coach.name}\r\n`;
+    ics+='LOCATION:Aphrodite Hills Racket Club\r\n';
+    ics+='BEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Tennis lesson\r\nEND:VALARM\r\n';
+    ics+='END:VEVENT\r\n';
+  });
+  ics+='END:VCALENDAR\r\n';
+  return {ics,count:lessons.length,name:(c?c.name.replace(/[^a-z0-9]+/gi,'-'):'client')};
+}
+function openShareModal(cid){
+  const c=client(cid);if(!c)return;
+  const weeks=4;
+  openModal(`
+    <div class="modal-head">Share ${c.name}'s schedule<button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <label class="field">Show the next
+        <select id="sh_weeks" onchange="refreshShare('${cid}')">
+          <option value="4" selected>4 weeks</option>
+          <option value="8">8 weeks</option>
+          <option value="12">12 weeks</option>
+        </select>
+      </label>
+      <div class="hint">This already skips their holidays and includes any moved lessons. Edit the text below if you like, then copy it into WhatsApp.</div>
+      <textarea id="sh_text" rows="11" style="font-size:12.5px;line-height:1.4">${escapeHtml(buildScheduleMessage(cid,weeks))}</textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost sm" onclick="closeModal()">Close</button>
+      <button class="btn bronze sm" onclick="downloadICS('${cid}')">Calendar file (.ics)</button>
+      <button class="btn" onclick="copyShare()">Copy message</button>
+    </div>`);
+}
+function refreshShare(cid){
+  const w=parseInt(document.getElementById('sh_weeks').value,10);
+  document.getElementById('sh_text').value=buildScheduleMessage(cid,w);
+}
+function copyShare(){
+  const t=document.getElementById('sh_text');
+  t.select();
+  navigator.clipboard.writeText(t.value).then(()=>toast('Copied — paste into WhatsApp')).catch(()=>{
+    try{document.execCommand('copy');toast('Copied');}catch(e){toast('Select the text and copy');}
+  });
+}
+function downloadICS(cid){
+  const w=parseInt(document.getElementById('sh_weeks').value,10);
+  const {ics,count,name}=buildICS(cid,w);
+  if(!count){toast('No lessons to export');return;}
+  const blob=new Blob([ics],{type:'text/calendar'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${name}-lessons.ics`;a.click();
+  toast(`${count} lessons — send them the file`);
 }
 
 function editClient(id){
