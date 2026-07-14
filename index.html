@@ -1187,21 +1187,21 @@ function clientLessons(cid,weeks){
 function buildScheduleMessage(cid,weeks){
   const c=client(cid);
   const lessons=clientLessons(cid,weeks);
-  const pattern=state.regulars.filter(r=>r.clientId===cid)
-    .map(r=>`${DOW_FULL[r.weekday]} ${fmtTime(r.startMin)}${r.season?' ('+r.season+')':''}`).join(', ');
-  let msg=`Aphrodite Hills Racket Club\nYour tennis lessons with ${state.coach.name}\n\n`;
-  msg+=`Hi ${c?c.name.split(' ')[0]:''}, here are your upcoming lessons`;
-  msg+=weeks?` (next ${weeks} weeks):\n\n`:':\n\n';
+  const name=c?c.name:'';
+  let msg=`Dear ${name},\n`;
+  msg+=`I hope you are well.\n`;
+  msg+=`We would like to confirm your upcoming tennis lessons with ${state.coach.name} on the following dates:\n\n`;
   if(!lessons.length){
-    msg+='No lessons scheduled in this period.\n';
+    msg+=`(No lessons scheduled in this period.)\n`;
   }else{
     lessons.forEach(l=>{
-      const d=pd(l.date);
-      msg+=`• ${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})} — ${fmtTime(l.startMin)}–${fmtTime(l.startMin+l.durationMin)}\n`;
+      msg+=`* ${pd(l.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}\n`;
     });
   }
-  if(pattern)msg+=`\nYour regular slot: ${pattern}\n`;
-  msg+=`\nSee you on court!`;
+  msg+=`Please verify that these dates and times are convenient for you.\n`;
+  msg+=`We look forward to seeing you on court.\n`;
+  msg+=`Kind regards,\n`;
+  msg+=`Racket Club`;
   return msg;
 }
 function buildICS(cid,weeks){
@@ -1562,7 +1562,7 @@ document.getElementById('syncBtn').addEventListener('click',syncNow);
 if(!API_URL)document.getElementById('syncBtn').style.display='none';
 
 /* ---------- seed a tiny demo (local-only mode, first run) ---------- */
-if(!API_URL && !state.clients.length && !localStorage.getItem(KEY)){
+if(!API_ && !state.clients.length && !localStorage.getItem(KEY)){
   state.staff=['Reception'];state.currentUser='Reception';
   const a={id:uid(),name:'Andreas P.',type:'regular',phone:'',color:PALETTE[0]};
   const m={id:uid(),name:'Maria K.',type:'regular',phone:'',color:PALETTE[2]};
