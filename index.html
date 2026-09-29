@@ -22,6 +22,50 @@ main{max-width:1600px;margin:auto;padding:18px}.view{display:none}.view.active{d
 .wait-layout{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.match-box{background:var(--foam);border:1px solid var(--line);border-radius:var(--r);padding:11px}.match-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.match-row:last-child{border-bottom:0}.match-score{font-family:var(--serif);color:var(--blue);font-size:18px}.slot-card{border:1px solid var(--line);border-radius:var(--r);padding:11px;margin-bottom:8px;background:#fff}.slot-card strong{color:var(--blue)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,38,107,.35);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal-overlay.open{display:flex}.modal{background:#fff;border-radius:var(--r);max-width:620px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}.modal-head{background:var(--blue);color:#fff;padding:15px 19px;font-family:var(--serif);font-size:18px;display:flex;justify-content:space-between}.modal-x{background:none;border:0;color:var(--shell);font-size:22px}.modal-body{padding:18px;display:flex;flex-direction:column;gap:13px}.modal-foot{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}.row{display:flex;gap:10px}.row>*{flex:1}.check-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.check{background:var(--foam);border:1px solid var(--line);padding:7px;border-radius:var(--r);font-size:11px}.hint{font-size:11px;color:var(--bronze)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:12px;box-shadow:var(--shadow);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}.toast.show{opacity:1}.empty{text-align:center;padding:30px;color:var(--muted);font-size:12px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:9px}.dot{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+
+/* ---------- coach mode ---------- */
+.mode-pick{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--shell)}
+.mode-pick select{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:var(--r);padding:6px 9px;font-size:12px}
+.mode-pick option{color:#111}
+#coachNav{display:none;background:#fff;border-bottom:1px solid var(--line);padding:0 14px;gap:6px}
+#coachNav button{background:none;border:0;border-bottom:2px solid transparent;padding:12px 13px;color:var(--muted);font-size:12px}
+#coachNav button.active{color:var(--blue);border-bottom-color:var(--bronze);font-weight:500}
+.coach-layout{max-width:900px;margin:0 auto}
+.coach-welcome{padding:5px 0 15px}
+.coach-welcome h2{font-size:27px;margin:0 0 3px}
+.coach-date{font-size:12px;color:var(--muted)}
+.coach-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 16px}
+.coach-action{border:1px solid var(--line);background:#fff;border-radius:9px;box-shadow:var(--shadow);padding:16px;text-align:left;cursor:pointer}
+.coach-action:hover{border-color:var(--blue25);transform:translateY(-1px)}
+.coach-action .icon{font-size:23px;color:var(--blue);line-height:1;margin-bottom:8px}
+.coach-action strong{display:block;color:var(--blue);font-size:13px;margin-bottom:3px}
+.coach-action span{display:block;color:var(--muted);font-size:10.5px;line-height:1.35}
+.coach-section{background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:15px;margin-bottom:14px}
+.coach-section h3{margin:0;font-size:17px}
+.coach-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
+.coach-lesson{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid var(--line)}
+.coach-lesson:last-child{border-bottom:0}
+.coach-time{font-family:var(--serif);font-size:18px;color:var(--blue);width:58px;flex:0 0 58px}
+.coach-person{min-width:0;flex:1}.coach-person strong{display:block;color:var(--blue);font-size:13px}.coach-person span{display:block;color:var(--muted);font-size:10.5px;margin-top:2px}
+.coach-mini{font-size:10px;color:var(--muted);padding:3px 7px;border-radius:12px;background:var(--foam);border:1px solid var(--line)}
+.coach-note{padding:10px 0;border-bottom:1px solid var(--line)}.coach-note:last-child{border-bottom:0}
+.coach-note-head{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}
+.coach-note b{color:var(--blue);font-size:12px}.coach-note p{margin:4px 0 0;font-size:11.5px;line-height:1.45}
+.coach-wait{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.coach-wait:last-child{border-bottom:0}.coach-wait-main{flex:1;min-width:0}.coach-wait-main strong{display:block;color:var(--blue);font-size:12px}.coach-wait-main span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.coach-empty{padding:18px 5px;text-align:center;color:var(--muted);font-size:11.5px}
+.coach-modal-tip{background:var(--foam);padding:9px 10px;border-radius:7px;font-size:10.5px;color:var(--muted);line-height:1.4}
+.coach-search{margin-bottom:8px}
+.coach-results{max-height:170px;overflow:auto;border:1px solid var(--line);border-radius:var(--r);display:none}
+.coach-result{display:flex;justify-content:space-between;gap:8px;padding:9px;border-bottom:1px solid var(--line);cursor:pointer;font-size:11.5px}.coach-result:last-child{border-bottom:0}.coach-result:hover{background:var(--foam)}
+body.coach-mode #receptionNav{display:none}
+body.coach-mode #coachNav{display:flex}
+body.coach-mode main{max-width:980px;padding:16px 14px}
+body.coach-mode main .view:not(#view-coach){display:none!important}
+body.coach-mode #view-coach{display:block!important}
+body.coach-mode .user-pick{display:none}
+body.coach-mode .mode-pick select{border-color:rgba(255,255,255,.45)}
+@media(max-width:620px){.coach-actions{grid-template-columns:1fr}.coach-time{width:52px;flex-basis:52px;font-size:16px}.coach-welcome h2{font-size:24px}}
 @media(max-width:900px){.dashboard-grid,.wait-layout{grid-template-columns:1fr}}@media(max-width:620px){main{padding:10px}.row{flex-direction:column}.check-grid{grid-template-columns:repeat(2,1fr)}header{padding:11px}.brand .name{font-size:17px}.nav-date{min-width:auto;font-size:14px}}
 </style>
 </head>
@@ -32,9 +76,10 @@ main{max-width:1600px;margin:auto;padding:18px}.view{display:none}.view.active{d
   <div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncStatus" class="sync-pill">Local</span></div>
   <button class="header-btn" id="syncBtn">Sync now</button>
   <button class="header-btn" id="refreshBtn">Refresh</button>
+  <div class="mode-pick"><span>View</span><select id="modeSelect"><option value="reception">Reception</option><option value="coach">Coach</option></select></div>
   <div class="user-pick"><span>Receptionist</span><select id="userSelect"></select></div>
 </header>
-<nav id="nav">
+<nav id="receptionNav">
  <button data-tab="dashboard" class="active">Dashboard</button>
  <button data-tab="schedule">Schedule</button>
  <button data-tab="waitlist">Waiting list <span id="waitBadge"></span></button>
@@ -44,7 +89,35 @@ main{max-width:1600px;margin:auto;padding:18px}.view{display:none}.view.active{d
  <button data-tab="analytics">Analytics</button>
  <button data-tab="settings">Settings</button>
 </nav>
+<nav id="coachNav">
+ <button class="active" data-coach-tab="home">My day</button>
+</nav>
 <main>
+<section id="view-coach" class="view">
+ <div class="coach-layout">
+  <div class="coach-welcome">
+   <h2 id="coachWelcome">Good morning</h2>
+   <div class="coach-date" id="coachDate"></div>
+  </div>
+  <div class="coach-actions">
+   <button class="coach-action" id="coachAddCustomer"><div class="icon">＋</div><strong>Add customer</strong><span>Create a customer quickly. You can also place them on the waiting list.</span></button>
+   <button class="coach-action" id="coachAddWait"><div class="icon">⌛</div><strong>Add to waiting list</strong><span>Tell reception who wants a lesson and when they are available.</span></button>
+   <button class="coach-action" id="coachAddNote"><div class="icon">✎</div><strong>Note to reception</strong><span>Leave a message for the desk about a player or anything they need to know.</span></button>
+  </div>
+  <div class="coach-section">
+   <div class="coach-section-head"><div><h3>Today's lessons</h3><div class="muted">Your schedule at a glance.</div></div><span class="badge blue" id="coachLessonCount">0</span></div>
+   <div id="coachLessons"></div>
+  </div>
+  <div class="coach-section">
+   <div class="coach-section-head"><div><h3>Waiting list</h3><div class="muted">People currently waiting for a lesson.</div></div><button class="btn ghost sm" id="coachWaitMore">Add person</button></div>
+   <div id="coachWaitList"></div>
+  </div>
+  <div class="coach-section">
+   <div class="coach-section-head"><div><h3>Reception notes</h3><div class="muted">Latest messages between you and the desk.</div></div><button class="btn ghost sm" id="coachNoteMore">New note</button></div>
+   <div id="coachNotes"></div>
+  </div>
+ </div>
+</section>
 <section id="view-dashboard" class="view active">
  <div class="section-head"><div><h2 class="section">Reception dashboard</h2><div class="muted">One screen for what needs attention, temporary openings and waiting-list demand.</div></div><button class="btn bronze" id="dashSync">Sync & refresh</button></div>
  <div class="cards" id="statCards"></div>
@@ -93,18 +166,20 @@ main{max-width:1600px;margin:auto;padding:18px}.view{display:none}.view.active{d
 <div class="modal-overlay" id="overlay"><div class="modal" id="modal"></div></div><div class="toast" id="toast"></div>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbwESJ3Dx2LAhU5NkIX6dMDpUpYdJ1Zj8CobhpNPKasYKSM7hrsEzOR7HGPftE5OuvE/exec";
-const KEY='ah_racket_manager_v2';const USER_KEY='ah_racket_user_v2';
+const KEY='ah_racket_manager_v2';const USER_KEY='ah_racket_user_v2';const MODE_KEY='ah_racket_mode_v2';
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PALETTE=['#003087','#8E7A6B','#2D5D3A','#6B4E71','#A14334','#1F6F78','#8A6D1E','#455A7A','#7A1F2B','#4A6B2A','#5A5550','#2C4A6E'];
 const defaultState=()=>({coach:{name:'Head Tennis Coach',open:8,close:20,days:[1,2,3,4,5,6]},seasons:{summerMonths:[4,5,6,7,8,9,10]},staff:['Reception'],currentUser:'Reception',clients:[],regulars:[],oneoffs:[],exceptions:[],holidays:[],breaks:[],notes:[],waitlist:[],log:[]});
 function clone(x){return JSON.parse(JSON.stringify(x))}function uid(){return Math.random().toString(36).slice(2,10)}function now(){return new Date().toISOString()}function ds(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}function fmtTime(m){return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}function hm(v){const[a,b]=v.split(':').map(Number);return a*60+b}function fmtStamp(x){const d=new Date(x);return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function load(){let s=defaultState();try{const x=localStorage.getItem(KEY);if(x)Object.assign(s,JSON.parse(x))}catch(e){}try{s.currentUser=localStorage.getItem(USER_KEY)||s.currentUser}catch(e){}return s}
+let appMode=(()=>{try{return localStorage.getItem(MODE_KEY)||'reception'}catch(e){return 'reception'}})();
 let state=load(),cursor=startOfWeek(new Date()),view='week',dragData=null,prefill=null,dirtyOps=0,lastSynced=null,cloudBusy=false;
 const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','waitlist','log'];
 function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff),seasons:clone(state.seasons)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s}
 function cache(){try{localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(USER_KEY,state.currentUser||'')}catch(e){}}
 function markChanged(){dirtyOps++;cache();setSyncStatus('dirty')}
-function logEvent(t){state.log.unshift({id:uid(),author:state.currentUser||'Reception',ts:now(),text:t});state.log=state.log.slice(0,300)}
+function currentActor(){return appMode==='coach'?(state.coach?.name||'Coach'):(state.currentUser||'Reception')}
+function logEvent(t){state.log.unshift({id:uid(),author:currentActor(),ts:now(),text:t});state.log=state.log.slice(0,300)}
 function setSyncStatus(s){const el=document.getElementById('syncStatus'),dot=document.getElementById('syncDot');if(!el)return;const m={clean:['Saved','#2D5D3A'],dirty:[`${dirtyOps} unsynced`,'#8A6D1E'],saving:['Syncing…','#8A6D1E'],offline:['Offline','#8A2A22']};const [t,c]=m[s]||m.dirty;el.textContent=t;el.style.background=c;dot.style.background=c}
 async function api(action,payload={}){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...payload})});const j=await r.json();if(j&&j.error)throw Error(j.error);return j}
 function buildOps(){const ops=[],base=lastSynced||{};TABLES.forEach(t=>{const cur=state[t]||[],prev=base[t]||[],pb={};prev.forEach(r=>pb[r.id]=r);const seen={};cur.forEach(r=>{seen[r.id]=1;const p=pb[r.id];if(!p||JSON.stringify(p)!==JSON.stringify(r))ops.push({type:'upsert',table:t,id:r.id,label:labelFor(t,r),data:r})});prev.forEach(r=>{if(!seen[r.id])ops.push({type:'remove',table:t,id:r.id})})});if(JSON.stringify(base.coach)!==JSON.stringify(state.coach))ops.push({type:'meta',key:'coach',data:state.coach});if(JSON.stringify(base.staff)!==JSON.stringify(state.staff))ops.push({type:'meta',key:'staff',data:state.staff});if(JSON.stringify(base.seasons)!==JSON.stringify(state.seasons))ops.push({type:'meta',key:'seasons',data:state.seasons});return ops}
@@ -168,6 +243,90 @@ function removeWait(id){const w=state.waitlist.find(x=>x.id===id);state.waitlist
 function renderClients(){document.getElementById('clientRows').innerHTML=state.clients.length?state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{const regs=state.regulars.filter(r=>r.clientId===c.id);const hol=state.holidays.filter(h=>h.clientId===c.id&&h.end>=ds(new Date())).sort((a,b)=>a.start.localeCompare(b.start))[0];return `<tr><td><b style="color:var(--blue)">${esc(c.name)}</b></td><td><span class="badge ${c.type==='casual'?'grey':'blue'}">${c.type}</span></td><td>${esc(c.phone||'—')}</td><td>${regs.length?regs.map(r=>`${DOW[r.weekday]} ${fmtTime(r.startMin)}`).join('<br>'):'—'}</td><td>${hol?`${hol.start} → ${hol.end}`:'—'}</td><td class="actions"><button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button><button class="btn sm" onclick="holidayModal('${c.id}')">Holiday</button></td></tr>`}).join(''):`<tr><td colspan="6"><div class="empty">No clients.</div></td></tr>`}
 function holidayModal(cid){openModal(`<div class="modal-head">Add holiday · ${esc(clientName(cid))}<button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="row"><label class="field">From<input type="date" id="hfrom"></label><label class="field">To<input type="date" id="hto"></label></div><div class="hint">The regular player's recurring lessons disappear for these dates and become temporary openings for the waiting list.</div></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveHoliday('${cid}')">Add holiday</button></div>`)}
 function saveHoliday(cid){const a=document.getElementById('hfrom').value,b=document.getElementById('hto').value;if(!a||!b||b<a){toast('Set a valid date range');return}state.holidays.push({id:uid(),clientId:cid,start:a,end:b});logEvent(`${clientName(cid)} holiday ${a} → ${b}`);markChanged();closeModal();renderAll();toast('Holiday added locally')}
+function coachGreeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
+function coachTodayLessons(){const date=ds(new Date());return getInstances(date).filter(x=>x.kind!=='break').sort((a,b)=>a.startMin-b.startMin)}
+function coachNoteForReceptionModal(){
+  openModal(`<div class="modal-head">Note to reception <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body">
+    <label class="field">About a customer (optional)<select id="cnClient"><option value="">General note</option>${clientOptions()}</select></label>
+    <label class="field">Message<textarea id="cnText" rows="5" placeholder="e.g. Andreas wants to switch permanently to Thursday 18:00 if a slot opens."></textarea></label>
+    <div class="coach-modal-tip">This will appear as an unread note for reception. It is saved instantly on this device and goes to the shared system when you press Sync.</div>
+  </div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCoachNote()">Send to reception</button></div>`);
+}
+function saveCoachNote(){
+  const text=document.getElementById('cnText').value.trim(); if(!text){toast('Write a note first');return}
+  const cid=document.getElementById('cnClient').value||null;
+  state.notes.unshift({id:uid(),author:currentActor(),ts:now(),text,read:false,audience:'reception',clientId:cid});
+  logEvent(cid?`Sent reception note about ${clientName(cid)}`:'Sent a note to reception');markChanged();closeModal();renderAll();toast('Note saved locally');
+}
+function coachAddCustomerModal(){
+  openModal(`<div class="modal-head">Add customer <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body">
+    <div class="row"><label class="field">Name<input id="ccName" placeholder="Customer name"></label><label class="field">Phone<input id="ccPhone" placeholder="Phone / WhatsApp"></label></div>
+    <label class="field">Type<select id="ccType"><option value="regular">Regular</option><option value="casual">Casual</option></select></label>
+    <label class="check"><input type="checkbox" id="ccWait"> Also add to waiting list</label>
+    <div id="ccWaitWrap" style="display:none">
+      <div class="row"><label class="field">Wants<select id="ccKind"><option value="permanent">Regular weekly slot</option><option value="temporary">Temporary / replacement lessons</option><option value="either">Either</option></select></label><label class="field">Duration<select id="ccDur"><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="either">Either</option></select></label></div>
+      <div><div class="muted" style="margin-bottom:6px">Preferred days (optional)</div><div class="check-grid">${DOW_FULL.slice(1).map((d,i)=>`<label class="check"><input type="checkbox" class="ccDay" value="${i+1}"> ${d}</label>`).join('')}</div></div>
+      <div class="row"><label class="field">Earliest<input type="time" id="ccFrom" value="17:00" step="1800"></label><label class="field">Latest<input type="time" id="ccTo" value="21:00" step="1800"></label></div>
+      <label class="field">Waiting-list note<textarea id="ccNote" rows="2" placeholder="Anything reception should know"></textarea></label>
+    </div>
+  </div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCoachCustomer()">Add customer</button></div>`);
+  document.getElementById('ccWait').onchange=e=>document.getElementById('ccWaitWrap').style.display=e.target.checked?'block':'none';
+}
+function saveCoachCustomer(){
+  const name=document.getElementById('ccName').value.trim();if(!name){toast('Name required');return}
+  const phone=document.getElementById('ccPhone').value.trim(),type=document.getElementById('ccType').value;
+  const c={id:uid(),name,phone,type,color:nextClientColor()};state.clients.push(c);logEvent(`Added client ${name}`);
+  if(document.getElementById('ccWait').checked){
+    const days=[...document.querySelectorAll('.ccDay:checked')].map(x=>+x.value);
+    state.waitlist.push({id:uid(),clientId:c.id,name:'',phone,kind:document.getElementById('ccKind').value,duration:document.getElementById('ccDur').value,days,from:document.getElementById('ccFrom').value,to:document.getElementById('ccTo').value,priority:'normal',coach:state.coach.name,note:document.getElementById('ccNote').value.trim(),ts:now(),status:'waiting',offers:[]});
+    logEvent(`Added ${name} to the waiting list`);
+  }
+  markChanged();closeModal();renderAll();toast('Customer added locally');
+}
+function nextClientColor(){const used=state.clients.map(c=>c.color);return PALETTE.find(p=>!used.includes(p))||PALETTE[state.clients.length%PALETTE.length]}
+function coachAddWaitModal(){
+  openModal(`<div class="modal-head">Add to waiting list <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body">
+    <label class="field">Existing customer<select id="cwClient"><option value="">— new person —</option>${clientOptions()}</select></label>
+    <div id="cwNew"><div class="row"><label class="field">Name<input id="cwName" placeholder="Customer name"></label><label class="field">Phone<input id="cwPhone" placeholder="Phone / WhatsApp"></label></div></div>
+    <div class="row"><label class="field">Wants<select id="cwKind"><option value="permanent">Regular weekly slot</option><option value="temporary">Temporary / replacement</option><option value="either">Either</option></select></label><label class="field">Duration<select id="cwDur"><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="either">Either</option></select></label></div>
+    <div><div class="muted" style="margin-bottom:6px">Preferred days (optional)</div><div class="check-grid">${DOW_FULL.slice(1).map((d,i)=>`<label class="check"><input type="checkbox" class="cwDay" value="${i+1}"> ${d}</label>`).join('')}</div></div>
+    <div class="row"><label class="field">Earliest<input type="time" id="cwFrom" value="17:00" step="1800"></label><label class="field">Latest<input type="time" id="cwTo" value="21:00" step="1800"></label></div>
+    <label class="field">Note for reception<textarea id="cwNote" rows="2" placeholder="e.g. Really wants Tuesday evening if anything opens."></textarea></label>
+  </div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCoachWait()">Add to waiting list</button></div>`);
+  document.getElementById('cwClient').onchange=e=>document.getElementById('cwNew').style.display=e.target.value?'none':'block';
+}
+function saveCoachWait(){
+  const cid=document.getElementById('cwClient').value;let name='',phone='';
+  if(cid){name=clientName(cid);phone=client(cid)?.phone||''}else{name=document.getElementById('cwName').value.trim();phone=document.getElementById('cwPhone').value.trim()}
+  if(!name){toast('Name required');return}
+  const days=[...document.querySelectorAll('.cwDay:checked')].map(x=>+x.value);
+  state.waitlist.push({id:uid(),clientId:cid||null,name:cid?'':name,phone,kind:document.getElementById('cwKind').value,duration:document.getElementById('cwDur').value,days,from:document.getElementById('cwFrom').value,to:document.getElementById('cwTo').value,priority:'normal',coach:state.coach.name,note:document.getElementById('cwNote').value.trim(),ts:now(),status:'waiting',offers:[]});
+  logEvent(`Added ${name} to the waiting list`);markChanged();closeModal();renderAll();toast('Added locally');
+}
+function renderCoachView(){
+  const name=state.coach?.name||'Coach', today=ds(new Date()), lessons=coachTodayLessons(), waits=state.waitlist.filter(w=>w.status!=='booked').slice().sort((a,b)=>(a.ts||'').localeCompare(b.ts||'')), notes=state.notes.slice().filter(n=>n.audience==='reception'||n.author===name).sort((a,b)=>(b.ts||'').localeCompare(a.ts||'')).slice(0,6);
+  document.getElementById('coachWelcome').textContent=`${coachGreeting()}, ${name}`;
+  document.getElementById('coachDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('coachLessonCount').textContent=lessons.length;
+  document.getElementById('coachLessons').innerHTML=lessons.length?lessons.map(it=>`<div class="coach-lesson"><div class="coach-time">${fmtTime(it.startMin)}</div><div class="coach-person"><strong>${esc(clientName(it.clientId))}</strong><span>${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)} · ${it.kind==='oneoff'?'One-off':it.kind==='moved'?'Moved':'Regular'}</span></div><button class="btn ghost sm" onclick="coachQuickNote('${it.clientId}')">Note</button></div>`).join(''):'<div class="coach-empty">No lessons scheduled today.</div>';
+  document.getElementById('coachWaitList').innerHTML=waits.length?waits.slice(0,7).map(w=>`<div class="coach-wait"><div class="coach-wait-main"><strong>${esc(waitName(w))}</strong><span>${w.kind==='permanent'?'Regular slot':w.kind==='temporary'?'Temporary':'Either'} · ${(w.days?.length?w.days.map(d=>DOW[d]).join(', '):'Any day')} · ${esc(w.from||'')}–${esc(w.to||'')}</span></div>${w.priority==='high'?'<span class="badge red">High</span>':''}</div>`).join(''):'<div class="coach-empty">No one is currently waiting.</div>';
+  document.getElementById('coachNotes').innerHTML=notes.length?notes.map(n=>`<div class="coach-note"><div class="coach-note-head"><span><b>${esc(n.author)}</b>${n.clientId?' · '+esc(clientName(n.clientId)):''}</span><span>${fmtStamp(n.ts)}</span></div><p>${esc(n.text)}</p></div>`).join(''):'<div class="coach-empty">No notes yet.</div>';
+}
+function coachQuickNote(clientId){
+  openModal(`<div class="modal-head">Note about ${esc(clientName(clientId))}<button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><label class="field">Message<textarea id="cqnText" rows="5" placeholder="Write anything reception should know about this player."></textarea></label></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveQuickCoachNote('${clientId}')">Send to reception</button></div>`);
+}
+function saveQuickCoachNote(clientId){const text=document.getElementById('cqnText').value.trim();if(!text){toast('Write a note first');return}state.notes.unshift({id:uid(),author:currentActor(),ts:now(),text,read:false,audience:'reception',clientId});logEvent(`Sent reception note about ${clientName(clientId)}`);markChanged();closeModal();renderAll();toast('Note saved locally')}
+function applyMode(){
+  document.body.classList.toggle('coach-mode',appMode==='coach');
+  const ms=document.getElementById('modeSelect');if(ms)ms.value=appMode;
+  const us=document.getElementById('userSelect');if(us)us.disabled=appMode==='coach';
+  const sb=document.getElementById('syncBtn'),rb=document.getElementById('refreshBtn');
+  if(sb)sb.textContent=appMode==='coach'?'Sync to reception':'Sync now';
+  if(rb)rb.textContent=appMode==='coach'?'Refresh shared':'Refresh';
+  if(appMode==='coach')renderCoachView();
+}
+function switchMode(m){appMode=m==='coach'?'coach':'reception';try{localStorage.setItem(MODE_KEY,appMode)}catch(e){};applyMode();renderAll();}
+
 function renderDashboard(){const activeWait=state.waitlist.filter(w=>w.status!=='booked'),pending=state.waitlist.filter(w=>w.status==='offered'),open=getTemporaryOpenings(),permanent=getPermanentOpenings(),today=ds(new Date());const todayOpen=openRuns(today,60).length;document.getElementById('statCards').innerHTML=[[''+activeWait.length,'Waiting'],[''+pending.length,'Offers pending'],[''+open.length,'Matched openings'],[''+todayOpen,'Open slots today']].map(x=>`<div class="stat-card"><div class="stat">${x[0]}</div><div class="stat-label">${x[1]}</div></div>`).join('');const attention=[];pending.forEach(w=>attention.push({html:`<b>${esc(waitName(w))}</b> has an offer awaiting response.<br><span class="small">Check ${esc((w.offers||[]).find(o=>o.status==='pending')?.date||'offer')}</span>`,action:`viewWait('${w.id}')`}));state.holidays.filter(h=>h.end>=today&&h.start<=ds(addDays(new Date(),21))).forEach(h=>attention.push({html:`<b>${esc(clientName(h.clientId))}</b> is away ${h.start} → ${h.end}.<br><span class="small">Their regular slot may be offered temporarily.</span>`,action:null}));document.getElementById('attentionList').innerHTML=attention.length?attention.slice(0,8).map(a=>`<div class="list-row"><div class="list-main">${a.html}</div>${a.action?`<button class="btn ghost sm" onclick="${a.action}">Open</button>`:''}</div>`).join(''):'<div class="empty">Nothing needs attention.</div>';document.getElementById('tempSlots').innerHTML=open.slice(0,6).map(s=>`<div class="slot-card"><strong>${pd(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})} · ${fmtTime(s.startMin)}–${fmtTime(s.startMin+s.durationMin)}</strong><br><span class="small">${s.matches.length} matching player${s.matches.length===1?'':'s'}</span></div>`).join('')||'<div class="empty">No matched temporary openings.</div>';document.getElementById('recentActivity').innerHTML=state.log.slice(0,6).map(e=>`<div class="list-row"><div><b>${esc(e.author)}</b> · ${esc(e.text)}</div><span class="small">${fmtStamp(e.ts)}</span></div>`).join('')||'<div class="empty">No activity yet.</div>'}
 function renderNotes(){const n=state.notes;document.getElementById('noteList').innerHTML=n.length?n.map(x=>`<div class="panel" style="border-left:3px solid ${x.read?'var(--bronze)':'var(--blue)'}"><div style="display:flex;justify-content:space-between;gap:8px"><b style="color:var(--blue)">${esc(x.author)}</b><span class="small">${fmtStamp(x.ts)}</span></div><div style="margin-top:6px">${esc(x.text)}</div><div style="text-align:right;margin-top:6px"><button class="btn ghost sm" onclick="toggleNote('${x.id}')">${x.read?'Mark unread':'Mark read'}</button><button class="btn ghost sm" onclick="deleteNote('${x.id}')">Delete</button></div></div>`).join(''):'<div class="empty">No staff notes.</div>';document.getElementById('noteBadge').textContent=n.filter(x=>!x.read).length?`(${n.filter(x=>!x.read).length})`:''}
 function addNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;state.notes.unshift({id:uid(),author:state.currentUser,ts:now(),text:t,read:false});document.getElementById('noteText').value='';logEvent('Posted a staff note');markChanged();renderAll()}
@@ -178,12 +337,12 @@ function renderSettings(){document.getElementById('setCoach').value=state.coach.
 function saveSettings(){const open=+document.getElementById('setOpen').value,close=+document.getElementById('setClose').value;if(close<=open){toast('Close must be after open');return}state.coach.name=document.getElementById('setCoach').value.trim()||'Coach';state.coach.open=open;state.coach.close=close;state.coach.days=[...document.querySelectorAll('.dchk:checked')].map(x=>+x.value);logEvent('Updated coach settings');markChanged();renderAll();toast('Settings saved locally')}
 function toggleSeason(m){const a=state.seasons.summerMonths,i=a.indexOf(m);if(i>=0)a.splice(i,1);else a.push(m);a.sort((x,y)=>x-y);markChanged();renderAll()}function addStaff(){const v=document.getElementById('newStaff').value.trim();if(!v||state.staff.includes(v))return;state.staff.push(v);document.getElementById('newStaff').value='';markChanged();renderSettings()}function removeStaff(s){if(state.staff.length<=1){toast('Keep at least one receptionist');return}state.staff=state.staff.filter(x=>x!==s);if(state.currentUser===s)state.currentUser=state.staff[0];markChanged();renderSettings()}
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`racket-manager-${ds(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}function importData(f){const r=new FileReader();r.onload=()=>{try{state=Object.assign(defaultState(),JSON.parse(r.result));dirtyOps++;cache();renderAll();toast('Imported locally — sync when ready')}catch(e){toast('Invalid JSON file')}};r.readAsText(f)}
-function switchTab(t){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+t).classList.add('active');renderAll()}
-function renderAll(){renderDashboard();renderSchedule();renderWaitlist();renderClients();renderNotes();renderLog();renderAnalytics();renderSettings()}
+function switchTab(t){document.querySelectorAll('#receptionNav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+t).classList.add('active');renderAll()}
+function renderAll(){renderDashboard();renderSchedule();renderWaitlist();renderClients();renderNotes();renderLog();renderAnalytics();renderSettings();if(appMode==='coach')renderCoachView()}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2300)}
 
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));document.getElementById('syncBtn').onclick=syncNow;document.getElementById('dashSync').onclick=syncNow;document.getElementById('settingsSync').onclick=syncNow;document.getElementById('refreshBtn').onclick=refreshOnly;document.getElementById('userSelect').onchange=e=>{state.currentUser=e.target.value;cache()};document.getElementById('viewWeek').onclick=()=>{view='week';cursor=startOfWeek(cursor);document.getElementById('viewWeek').classList.add('active');document.getElementById('viewDay').classList.remove('active');renderSchedule()};document.getElementById('viewDay').onclick=()=>{view='day';document.getElementById('viewDay').classList.add('active');document.getElementById('viewWeek').classList.remove('active');renderSchedule()};document.getElementById('prevBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?-7:-1);renderSchedule()};document.getElementById('nextBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?7:1);renderSchedule()};document.getElementById('todayBtn').onclick=()=>{cursor=view==='week'?startOfWeek(new Date()):new Date();renderSchedule()};document.getElementById('jumpDate').onchange=e=>{const d=pd(e.target.value);cursor=view==='week'?startOfWeek(d):d;renderSchedule()};document.getElementById('showOpen').onchange=renderSchedule;document.getElementById('availMin').onchange=renderSchedule;document.getElementById('addBreakBtn').onclick=addBreak;document.getElementById('addClientBtn').onclick=()=>editClient(null);document.getElementById('addWaitBtn').onclick=addWaitModal;document.getElementById('waitFilter').onchange=renderWaitlist;document.getElementById('waitSort').onchange=renderWaitlist;document.getElementById('addNoteBtn').onclick=addNote;document.getElementById('saveSettings').onclick=saveSettings;document.getElementById('addStaffBtn').onclick=addStaff;document.getElementById('exportBtn').onclick=exportData;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
-renderAll();
+document.querySelectorAll('#receptionNav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));document.getElementById('modeSelect').onchange=e=>switchMode(e.target.value);document.getElementById('coachAddCustomer').onclick=coachAddCustomerModal;document.getElementById('coachAddWait').onclick=coachAddWaitModal;document.getElementById('coachAddNote').onclick=coachNoteForReceptionModal;document.getElementById('coachWaitMore').onclick=coachAddWaitModal;document.getElementById('coachNoteMore').onclick=coachNoteForReceptionModal;document.getElementById('syncBtn').onclick=syncNow;document.getElementById('dashSync').onclick=syncNow;document.getElementById('settingsSync').onclick=syncNow;document.getElementById('refreshBtn').onclick=refreshOnly;document.getElementById('userSelect').onchange=e=>{state.currentUser=e.target.value;cache()};document.getElementById('viewWeek').onclick=()=>{view='week';cursor=startOfWeek(cursor);document.getElementById('viewWeek').classList.add('active');document.getElementById('viewDay').classList.remove('active');renderSchedule()};document.getElementById('viewDay').onclick=()=>{view='day';document.getElementById('viewDay').classList.add('active');document.getElementById('viewWeek').classList.remove('active');renderSchedule()};document.getElementById('prevBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?-7:-1);renderSchedule()};document.getElementById('nextBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?7:1);renderSchedule()};document.getElementById('todayBtn').onclick=()=>{cursor=view==='week'?startOfWeek(new Date()):new Date();renderSchedule()};document.getElementById('jumpDate').onchange=e=>{const d=pd(e.target.value);cursor=view==='week'?startOfWeek(d):d;renderSchedule()};document.getElementById('showOpen').onchange=renderSchedule;document.getElementById('availMin').onchange=renderSchedule;document.getElementById('addBreakBtn').onclick=addBreak;document.getElementById('addClientBtn').onclick=()=>editClient(null);document.getElementById('addWaitBtn').onclick=addWaitModal;document.getElementById('waitFilter').onchange=renderWaitlist;document.getElementById('waitSort').onchange=renderWaitlist;document.getElementById('addNoteBtn').onclick=addNote;document.getElementById('saveSettings').onclick=saveSettings;document.getElementById('addStaffBtn').onclick=addStaff;document.getElementById('exportBtn').onclick=exportData;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
+renderAll();applyMode();
 // Pull once on opening, but NEVER overwrite local edits. No periodic writes.
 (async()=>{try{if(!dirtyOps){const data=await api('read',{}),cu=state.currentUser;TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);if(data.coach)state.coach=data.coach;if(data.staff)state.staff=data.staff;if(data.seasons)state.seasons=data.seasons;state.currentUser=cu;lastSynced=snapshot();cache();renderAll();setSyncStatus('clean')}else setSyncStatus('dirty')}catch(e){setSyncStatus(dirtyOps?'dirty':'offline')}})();
 </script>
