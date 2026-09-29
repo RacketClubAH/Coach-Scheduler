@@ -64,7 +64,7 @@ body.coach-mode main{max-width:980px;padding:16px 14px}
 body.coach-mode main .view:not(#view-coach){display:none!important}
 body.coach-mode #view-coach{display:block!important}
 body.coach-mode .user-pick{display:none}
-body.coach-mode .mode-pick select{border-color:rgba(255,255,255,.45)}
+body.coach-mode .mode-pick select{border-color:rgba(255,255,255,.45)}body.route-coach .mode-pick,body.route-reception .mode-pick{display:none}.role-badge{font-size:10px;letter-spacing:.7px;text-transform:uppercase;padding:5px 9px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff}.coach-sync-hint{font-size:10px;color:var(--shell)}
 @media(max-width:620px){.coach-actions{grid-template-columns:1fr}.coach-time{width:52px;flex-basis:52px;font-size:16px}.coach-welcome h2{font-size:24px}}
 @media(max-width:900px){.dashboard-grid,.wait-layout{grid-template-columns:1fr}}@media(max-width:620px){main{padding:10px}.row{flex-direction:column}.check-grid{grid-template-columns:repeat(2,1fr)}header{padding:11px}.brand .name{font-size:17px}.nav-date{min-width:auto;font-size:14px}}
 </style>
@@ -72,6 +72,7 @@ body.coach-mode .mode-pick select{border-color:rgba(255,255,255,.45)}
 <body>
 <header>
   <div class="brand"><span class="name">Aphrodite Hills</span><span class="sub">Racket Club · Lesson Manager</span></div>
+  <span class="role-badge" id="roleBadge" style="display:none"></span>
   <div class="spacer"></div>
   <div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncStatus" class="sync-pill">Local</span></div>
   <button class="header-btn" id="syncBtn">Sync now</button>
@@ -167,12 +168,13 @@ body.coach-mode .mode-pick select{border-color:rgba(255,255,255,.45)}
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbwESJ3Dx2LAhU5NkIX6dMDpUpYdJ1Zj8CobhpNPKasYKSM7hrsEzOR7HGPftE5OuvE/exec";
 const KEY='ah_racket_manager_v2';const USER_KEY='ah_racket_user_v2';const MODE_KEY='ah_racket_mode_v2';
+const PATH_MODE=(()=>{const p=(location.pathname||'').toLowerCase().replace(/\/+$/,'');if(p==='\/coach'||p.endsWith('\/coach'))return 'coach';if(p==='\/reception'||p.endsWith('\/reception'))return 'reception';return null})();
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PALETTE=['#003087','#8E7A6B','#2D5D3A','#6B4E71','#A14334','#1F6F78','#8A6D1E','#455A7A','#7A1F2B','#4A6B2A','#5A5550','#2C4A6E'];
 const defaultState=()=>({coach:{name:'Head Tennis Coach',open:8,close:20,days:[1,2,3,4,5,6]},seasons:{summerMonths:[4,5,6,7,8,9,10]},staff:['Reception'],currentUser:'Reception',clients:[],regulars:[],oneoffs:[],exceptions:[],holidays:[],breaks:[],notes:[],waitlist:[],log:[]});
 function clone(x){return JSON.parse(JSON.stringify(x))}function uid(){return Math.random().toString(36).slice(2,10)}function now(){return new Date().toISOString()}function ds(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}function fmtTime(m){return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}function hm(v){const[a,b]=v.split(':').map(Number);return a*60+b}function fmtStamp(x){const d=new Date(x);return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function load(){let s=defaultState();try{const x=localStorage.getItem(KEY);if(x)Object.assign(s,JSON.parse(x))}catch(e){}try{s.currentUser=localStorage.getItem(USER_KEY)||s.currentUser}catch(e){}return s}
-let appMode=(()=>{try{return localStorage.getItem(MODE_KEY)||'reception'}catch(e){return 'reception'}})();
+let appMode=PATH_MODE||(()=>{try{return localStorage.getItem(MODE_KEY)||'reception'}catch(e){return 'reception'}})();
 let state=load(),cursor=startOfWeek(new Date()),view='week',dragData=null,prefill=null,dirtyOps=0,lastSynced=null,cloudBusy=false;
 const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','waitlist','log'];
 function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff),seasons:clone(state.seasons)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s}
@@ -317,15 +319,19 @@ function coachQuickNote(clientId){
 }
 function saveQuickCoachNote(clientId){const text=document.getElementById('cqnText').value.trim();if(!text){toast('Write a note first');return}state.notes.unshift({id:uid(),author:currentActor(),ts:now(),text,read:false,audience:'reception',clientId});logEvent(`Sent reception note about ${clientName(clientId)}`);markChanged();closeModal();renderAll();toast('Note saved locally')}
 function applyMode(){
+  appMode=PATH_MODE||appMode;
   document.body.classList.toggle('coach-mode',appMode==='coach');
+  document.body.classList.toggle('route-coach',PATH_MODE==='coach');
+  document.body.classList.toggle('route-reception',PATH_MODE==='reception');
+  const role=document.getElementById('roleBadge');if(role){role.style.display=PATH_MODE?'inline-flex':'none';role.textContent=PATH_MODE==='coach'?'Coach view':'Reception view';}
   const ms=document.getElementById('modeSelect');if(ms)ms.value=appMode;
-  const us=document.getElementById('userSelect');if(us)us.disabled=appMode==='coach';
+  const us=document.getElementById('userSelect');if(us)us.disabled=appMode==='coach';const modePick=document.querySelector('.mode-pick');if(modePick)modePick.style.display=PATH_MODE?'none':'';
   const sb=document.getElementById('syncBtn'),rb=document.getElementById('refreshBtn');
   if(sb)sb.textContent=appMode==='coach'?'Sync to reception':'Sync now';
   if(rb)rb.textContent=appMode==='coach'?'Refresh shared':'Refresh';
   if(appMode==='coach')renderCoachView();
 }
-function switchMode(m){appMode=m==='coach'?'coach':'reception';try{localStorage.setItem(MODE_KEY,appMode)}catch(e){};applyMode();renderAll();}
+function switchMode(m){if(PATH_MODE)return;appMode=m==='coach'?'coach':'reception';try{localStorage.setItem(MODE_KEY,appMode)}catch(e){};applyMode();renderAll();}
 
 function renderDashboard(){const activeWait=state.waitlist.filter(w=>w.status!=='booked'),pending=state.waitlist.filter(w=>w.status==='offered'),open=getTemporaryOpenings(),permanent=getPermanentOpenings(),today=ds(new Date());const todayOpen=openRuns(today,60).length;document.getElementById('statCards').innerHTML=[[''+activeWait.length,'Waiting'],[''+pending.length,'Offers pending'],[''+open.length,'Matched openings'],[''+todayOpen,'Open slots today']].map(x=>`<div class="stat-card"><div class="stat">${x[0]}</div><div class="stat-label">${x[1]}</div></div>`).join('');const attention=[];pending.forEach(w=>attention.push({html:`<b>${esc(waitName(w))}</b> has an offer awaiting response.<br><span class="small">Check ${esc((w.offers||[]).find(o=>o.status==='pending')?.date||'offer')}</span>`,action:`viewWait('${w.id}')`}));state.holidays.filter(h=>h.end>=today&&h.start<=ds(addDays(new Date(),21))).forEach(h=>attention.push({html:`<b>${esc(clientName(h.clientId))}</b> is away ${h.start} → ${h.end}.<br><span class="small">Their regular slot may be offered temporarily.</span>`,action:null}));document.getElementById('attentionList').innerHTML=attention.length?attention.slice(0,8).map(a=>`<div class="list-row"><div class="list-main">${a.html}</div>${a.action?`<button class="btn ghost sm" onclick="${a.action}">Open</button>`:''}</div>`).join(''):'<div class="empty">Nothing needs attention.</div>';document.getElementById('tempSlots').innerHTML=open.slice(0,6).map(s=>`<div class="slot-card"><strong>${pd(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})} · ${fmtTime(s.startMin)}–${fmtTime(s.startMin+s.durationMin)}</strong><br><span class="small">${s.matches.length} matching player${s.matches.length===1?'':'s'}</span></div>`).join('')||'<div class="empty">No matched temporary openings.</div>';document.getElementById('recentActivity').innerHTML=state.log.slice(0,6).map(e=>`<div class="list-row"><div><b>${esc(e.author)}</b> · ${esc(e.text)}</div><span class="small">${fmtStamp(e.ts)}</span></div>`).join('')||'<div class="empty">No activity yet.</div>'}
 function renderNotes(){const n=state.notes;document.getElementById('noteList').innerHTML=n.length?n.map(x=>`<div class="panel" style="border-left:3px solid ${x.read?'var(--bronze)':'var(--blue)'}"><div style="display:flex;justify-content:space-between;gap:8px"><b style="color:var(--blue)">${esc(x.author)}</b><span class="small">${fmtStamp(x.ts)}</span></div><div style="margin-top:6px">${esc(x.text)}</div><div style="text-align:right;margin-top:6px"><button class="btn ghost sm" onclick="toggleNote('${x.id}')">${x.read?'Mark unread':'Mark read'}</button><button class="btn ghost sm" onclick="deleteNote('${x.id}')">Delete</button></div></div>`).join(''):'<div class="empty">No staff notes.</div>';document.getElementById('noteBadge').textContent=n.filter(x=>!x.read).length?`(${n.filter(x=>!x.read).length})`:''}
