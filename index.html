@@ -2,1585 +2,189 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aphrodite Hills · Racket Club Coach Schedule</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aphrodite Hills · Racket Club Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Geologica:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --mple:#003087;
-    --mple-70:#33599f;
-    --mple-25:#bfcce1;
-    --bronze:#8E7A6B;
-    --bronze-70:#aa9b8f;
-    --foam:#F9F6F4;
-    --shell:#D6D1C3;
-    --pearl:#CFCDC9;
-    --ink:#1d1d1d;
-    --ink-70:#4d4d4d;
-    --line:#e3ddd2;
-    --good:#2D5D3A;
-    --warn:#9a5b1e;
-    --serif:'Playfair Display',Georgia,serif;
-    --sans:'Geologica',system-ui,sans-serif;
-    --r:6px;
-    --shadow:0 1px 3px rgba(0,48,135,.08),0 6px 24px rgba(0,48,135,.06);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    font-family:var(--sans);
-    font-weight:300;
-    background:var(--foam);
-    color:var(--ink);
-    -webkit-font-smoothing:antialiased;
-  }
-  button{font-family:var(--sans);cursor:pointer}
-  input,select,textarea{font-family:var(--sans)}
-
-  /* ---------- top bar ---------- */
-  header{
-    background:var(--mple);
-    color:var(--foam);
-    padding:14px 22px;
-    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
-    position:sticky;top:0;z-index:40;
-  }
-  .brand{display:flex;flex-direction:column;line-height:1}
-  .brand .name{font-family:var(--serif);font-size:20px;letter-spacing:.5px}
-  .brand .sub{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--shell);margin-top:4px;font-weight:400}
-  header .spacer{flex:1}
-  .user-pick{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--shell)}
-  .user-pick select{
-    background:rgba(255,255,255,.1);color:var(--foam);border:1px solid rgba(255,255,255,.25);
-    border-radius:var(--r);padding:6px 10px;font-size:12.5px;font-weight:400;
-  }
-  .user-pick select option{color:var(--ink)}
-  .sync-pill{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--foam);background:var(--bronze);padding:4px 11px;border-radius:20px;font-weight:400}
-  .sync-btn{background:rgba(255,255,255,.12);color:var(--foam);border:1px solid rgba(255,255,255,.3);border-radius:var(--r);padding:6px 12px;font-size:12px}
-  .sync-btn:hover{background:rgba(255,255,255,.2)}
-
-  /* ---------- tabs ---------- */
-  nav.tabs{
-    background:#fff;border-bottom:1px solid var(--line);
-    display:flex;gap:2px;padding:0 16px;position:sticky;top:55px;z-index:30;overflow-x:auto;
-  }
-  nav.tabs button{
-    background:none;border:none;padding:14px 16px;font-size:13px;font-weight:400;
-    color:var(--ink-70);border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.3px;
-  }
-  nav.tabs button.active{color:var(--mple);border-bottom-color:var(--bronze);font-weight:500}
-  nav.tabs button:hover{color:var(--mple)}
-
-  main{padding:20px;max-width:1500px;margin:0 auto}
-  .view{display:none}
-  .view.active{display:block}
-
-  h2.section{font-family:var(--serif);font-weight:500;color:var(--mple);font-size:22px;margin:0 0 4px}
-  .muted{color:var(--ink-70);font-size:13px}
-
-  /* ---------- schedule controls ---------- */
-  .sched-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-  .btn{
-    border:1px solid var(--mple);background:var(--mple);color:var(--foam);
-    border-radius:var(--r);padding:8px 14px;font-size:13px;font-weight:400;letter-spacing:.2px;
-  }
-  .btn:hover{background:#00266b}
-  .btn.ghost{background:#fff;color:var(--mple)}
-  .btn.ghost:hover{background:var(--foam)}
-  .btn.bronze{background:var(--bronze);border-color:var(--bronze)}
-  .btn.bronze:hover{background:#7c6a5c}
-  .btn.sm{padding:6px 10px;font-size:12px}
-  .seg{display:flex;border:1px solid var(--shell);border-radius:var(--r);overflow:hidden}
-  .seg button{background:#fff;border:none;padding:8px 14px;font-size:12.5px;color:var(--ink-70)}
-  .seg button.active{background:var(--mple);color:var(--foam)}
-  .nav-date{font-family:var(--serif);font-size:17px;color:var(--mple);min-width:230px;text-align:center}
-  input[type=date],input[type=text],input[type=tel],select,textarea{
-    border:1px solid var(--shell);border-radius:var(--r);padding:8px 10px;font-size:13px;background:#fff;color:var(--ink);
-  }
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--mple-25);outline-offset:0;border-color:var(--mple)}
-  label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-70);letter-spacing:.3px}
-  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-70)}
-
-  /* ---------- grid ---------- */
-  .grid-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:auto;box-shadow:var(--shadow)}
-  .sgrid{display:grid;min-width:760px}
-  .cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
-  .time-col{border-right:1px solid var(--line)}
-  .time-label{
-    font-size:10.5px;color:var(--ink-70);padding:2px 6px;text-align:right;
-    border-bottom:1px dashed var(--line);height:26px;display:flex;align-items:flex-start;justify-content:flex-end;
-  }
-  .time-label.hour{border-bottom:1px solid var(--line);font-weight:500;color:var(--mple)}
-  .day-head{
-    background:var(--foam);border-right:1px solid var(--line);border-bottom:1px solid var(--shell);
-    padding:8px 6px;text-align:center;position:sticky;top:0;z-index:2;
-  }
-  .day-head .dow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bronze);font-weight:500}
-  .day-head .dnum{font-family:var(--serif);font-size:18px;color:var(--mple);line-height:1.1}
-  .day-head.today .dnum{color:var(--bronze)}
-  .day-head .away{font-size:9.5px;color:var(--warn);margin-top:3px;line-height:1.2}
-  .corner{background:var(--foam);border-right:1px solid var(--line);border-bottom:1px solid var(--shell);position:sticky;top:0;z-index:3}
-  .slot{height:26px;cursor:pointer;transition:background .1s}
-  .slot:hover{background:var(--mple-25)}
-  .slot.hour{border-top:1px solid var(--line)}
-  .open-run{position:absolute;left:3px;top:2px;font-size:9px;color:var(--bronze);font-weight:500;letter-spacing:.5px;pointer-events:none}
-
-  .booking{
-    margin:1px;border-radius:4px;padding:4px 6px;color:var(--foam);overflow:hidden;cursor:grab;
-    display:flex;flex-direction:column;justify-content:flex-start;font-size:11.5px;line-height:1.25;
-    border-left:3px solid rgba(255,255,255,.5);
-  }
-  .booking:active{cursor:grabbing}
-  .booking.regular{background:var(--mple)}
-  .booking.casual{border-left:3px dashed rgba(255,255,255,.85)}
-  .booking.moved{border-left:3px solid var(--bronze);box-shadow:inset 0 0 0 1px rgba(184,134,42,.7)}
-  .booking.break{
-    background:repeating-linear-gradient(45deg,var(--pearl),var(--pearl) 6px,#c4c2bd 6px,#c4c2bd 12px);
-    color:var(--ink);cursor:pointer;border-left:3px solid var(--bronze);
-  }
-  .booking.break .bname{font-style:italic}
-  .booking .bname{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .booking .btime{font-size:10px;opacity:.85;font-weight:300}
-  .booking .btag{font-size:9px;letter-spacing:.5px;text-transform:uppercase;opacity:.8}
-  .slot.dragover{background:var(--mple-25);outline:2px dashed var(--mple)}
-
-  /* ---------- cards / tables ---------- */
-  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
-  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;font-weight:500;color:var(--mple);border-bottom:2px solid var(--shell);padding:8px 10px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase}
-  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-  tr:hover td{background:var(--foam)}
-  .pill{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:20px;letter-spacing:.5px}
-  .pill.regular{background:var(--mple);color:var(--foam)}
-  .pill.casual{background:var(--bronze);color:var(--foam)}
-  .pill.away{background:#f3e7d6;color:var(--warn)}
-  .stat{font-family:var(--serif);font-size:30px;color:var(--mple);line-height:1}
-  .stat-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--bronze);margin-top:5px}
-  .client-card{background:var(--foam);border:1px solid var(--line);border-radius:var(--r);padding:14px}
-  .client-card h4{margin:0 0 2px;font-family:var(--serif);font-weight:500;color:var(--mple);font-size:16px}
-  .bar{height:7px;background:var(--shell);border-radius:5px;overflow:hidden;margin-top:6px}
-  .bar > i{display:block;height:100%;background:var(--mple)}
-
-  /* notes */
-  .note{border-left:3px solid var(--bronze);background:var(--foam);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;margin-bottom:10px}
-  .note.unread{border-left-color:var(--mple);background:#eef1f8}
-  .note .meta{font-size:11px;color:var(--ink-70);margin-bottom:5px;display:flex;justify-content:space-between;gap:8px}
-  .note .meta b{color:var(--mple);font-weight:500}
-  .log-row{font-size:12px;color:var(--ink-70);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
-  .log-row time{color:var(--bronze);white-space:nowrap;font-variant-numeric:tabular-nums}
-
-  /* modal */
-  .overlay{position:fixed;inset:0;background:rgba(0,38,107,.35);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
-  .overlay.open{display:flex}
-  .modal{background:#fff;border-radius:var(--r);max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:90vh;overflow:auto}
-  .modal-head{background:var(--mple);color:var(--foam);padding:16px 20px;font-family:var(--serif);font-size:18px;border-radius:var(--r) var(--r) 0 0;display:flex;justify-content:space-between;align-items:center}
-  .modal-head .x{background:none;border:none;color:var(--shell);font-size:22px;line-height:1}
-  .modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
-  .modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-  .row{display:flex;gap:12px}
-  .row > *{flex:1}
-  .danger{color:#fff;background:#8a2a22;border-color:#8a2a22}
-  .danger:hover{background:#71211b}
-
-  .empty-state{text-align:center;padding:40px;color:var(--ink-70);font-size:14px}
-  .avail-day{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  .avail-day:last-child{border-bottom:none}
-  .avail-day .ad-date{min-width:150px;font-weight:500;color:var(--mple);font-size:13px}
-  .avail-chip{display:inline-block;background:var(--foam);border:1px solid var(--shell);color:var(--mple);border-radius:20px;padding:3px 11px;font-size:12px;margin:2px 4px 2px 0;font-variant-numeric:tabular-nums}
-  .avail-none{color:var(--bronze);font-size:12.5px;font-style:italic}
-  .season-pill{font-size:11px;letter-spacing:.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;color:var(--foam);font-weight:500;white-space:nowrap}
-  .season-pill.summer{background:#B8862A}
-  .season-pill.winter{background:#2C4A6E}
-  .season-pill .sub{font-weight:300;text-transform:none;opacity:.85;margin-left:6px;letter-spacing:0}
-  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-70);margin-top:10px;align-items:center}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--mple);color:var(--foam);padding:11px 20px;border-radius:var(--r);font-size:13px;box-shadow:var(--shadow);z-index:200;opacity:0;transition:opacity .2s;pointer-events:none}
-  .toast.show{opacity:1}
-  .hint{font-size:11.5px;color:var(--bronze)}
-  @media(max-width:640px){
-    .nav-date{min-width:auto;font-size:15px}
-    main{padding:12px}
-  }
+:root{--blue:#003087;--blue2:#33599f;--blue25:#dce5f3;--bronze:#8e7a6b;--foam:#f9f6f4;--shell:#d6d1c3;--pearl:#cfcdc9;--ink:#1d1d1d;--muted:#5d5d5d;--line:#e3ddd2;--good:#2d5d3a;--warn:#9a5b1e;--bad:#8a2a22;--serif:'Playfair Display',Georgia,serif;--sans:'Geologica',system-ui,sans-serif;--r:7px;--shadow:0 1px 3px rgba(0,48,135,.08),0 8px 28px rgba(0,48,135,.07)}
+*{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:var(--sans);font-weight:300;background:var(--foam);color:var(--ink);-webkit-font-smoothing:antialiased}button,input,select,textarea{font-family:var(--sans)}button{cursor:pointer}
+header{background:var(--blue);color:var(--foam);padding:13px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50}.brand{display:flex;flex-direction:column;line-height:1}.brand .name{font-family:var(--serif);font-size:20px}.brand .sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--shell);margin-top:4px}.spacer{flex:1}.sync{display:flex;align-items:center;gap:7px}.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--good)}.sync-pill{font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:4px 9px;border-radius:18px;background:var(--good)}.sync-pill.dirty{background:#8a6d1e}.sync-pill.offline{background:var(--bad)}.header-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r);padding:7px 11px;font-size:12px}.header-btn:hover{background:rgba(255,255,255,.18)}.user-pick{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--shell)}.user-pick select{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:var(--r);padding:6px 9px}.user-pick option{color:#111}
+nav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:1px;padding:0 14px;position:sticky;top:56px;z-index:40;overflow:auto}nav button{background:none;border:0;border-bottom:2px solid transparent;padding:13px 15px;color:var(--muted);font-size:12.5px;white-space:nowrap}nav button.active{color:var(--blue);border-bottom-color:var(--bronze);font-weight:500}
+main{max-width:1600px;margin:auto;padding:18px}.view{display:none}.view.active{display:block}h1,h2,h3{font-family:var(--serif);font-weight:500;color:var(--blue)}h2.section{font-size:22px;margin:0 0 3px}.muted{color:var(--muted);font-size:12.5px}.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:var(--r);padding:8px 13px;font-size:12.5px}.btn:hover{background:#00266b}.btn.ghost{background:#fff;color:var(--blue)}.btn.bronze{background:var(--bronze);border-color:var(--bronze)}.btn.danger{background:var(--bad);border-color:var(--bad)}.btn.sm{padding:6px 9px;font-size:11.5px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.card,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}.panel{padding:16px;margin-bottom:16px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.stat-card{padding:15px;background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}.stat{font-family:var(--serif);font-size:29px;color:var(--blue)}.stat-label{text-transform:uppercase;letter-spacing:1px;font-size:10px;color:var(--bronze);margin-top:4px}.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:16px;padding:3px 8px;font-size:10px;letter-spacing:.35px}.badge.blue{background:var(--blue);color:#fff}.badge.green{background:#e5efe8;color:var(--good)}.badge.amber{background:#f3e7d6;color:var(--warn)}.badge.red{background:#f3dddd;color:var(--bad)}.badge.grey{background:#eeeae4;color:#555}.priority{font-weight:500}.priority.high{color:var(--bad)}.priority.normal{color:var(--warn)}
+.dashboard-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}.attention{border-left:4px solid var(--bronze);padding-left:12px}.attention h3{margin:0 0 5px;font-size:17px}.list-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.list-row:last-child{border-bottom:0}.list-main{min-width:0}.list-main b{color:var(--blue)}.small{font-size:11px;color:var(--muted)}.actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.schedule-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:13px}.seg{display:flex;border:1px solid var(--shell);border-radius:var(--r);overflow:hidden}.seg button{background:#fff;border:0;padding:8px 12px;font-size:12px;color:var(--muted)}.seg button.active{background:var(--blue);color:#fff}.nav-date{font-family:var(--serif);font-size:17px;color:var(--blue);min-width:220px;text-align:center}.field{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--muted)}input,select,textarea{border:1px solid var(--shell);border-radius:var(--r);padding:8px 9px;background:#fff;color:var(--ink);font-size:12.5px}textarea{resize:vertical}input:focus,select:focus,textarea:focus{outline:2px solid var(--blue25);border-color:var(--blue)}
+.grid-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:auto;box-shadow:var(--shadow)}.sgrid{display:grid;min-width:790px}.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.corner,.day-head{background:var(--foam);border-right:1px solid var(--line);border-bottom:1px solid var(--shell);position:sticky;top:0;z-index:3}.day-head{padding:8px 6px;text-align:center}.dow{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bronze)}.dnum{font-family:var(--serif);font-size:17px;color:var(--blue)}.day-head.today .dnum{color:var(--bronze)}.away{font-size:8.5px;color:var(--warn);margin-top:3px;line-height:1.2}.time-label{font-size:10px;color:var(--muted);padding:2px 6px;text-align:right;height:27px;display:flex;align-items:flex-start;justify-content:flex-end;border-bottom:1px dashed var(--line)}.time-label.hour{border-bottom:1px solid var(--line);font-weight:500;color:var(--blue)}.slot{height:27px;cursor:pointer;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.slot:hover{background:var(--blue25)}.slot.dragover{background:var(--blue25);outline:2px dashed var(--blue)}.open-run{position:absolute;left:4px;top:3px;font-size:8.5px;color:var(--bronze);font-weight:500;pointer-events:none}.booking{margin:1px;border-radius:4px;padding:4px 6px;color:#fff;overflow:hidden;cursor:grab;display:flex;flex-direction:column;font-size:11px;line-height:1.25;border-left:3px solid rgba(255,255,255,.5)}.booking.moved{border-left-color:var(--bronze);box-shadow:inset 0 0 0 1px rgba(184,134,42,.8)}.booking.break{background:repeating-linear-gradient(45deg,var(--pearl),var(--pearl) 6px,#c4c2bd 6px,#c4c2bd 12px);color:var(--ink);cursor:pointer;border-left-color:var(--bronze)}.bname{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.btime{font-size:9.5px;opacity:.88}.btag{font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:12px}.table th{text-align:left;font-weight:500;color:var(--blue);border-bottom:2px solid var(--shell);padding:8px 9px;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}.table td{padding:9px;border-bottom:1px solid var(--line);vertical-align:top}.table tr:hover td{background:var(--foam)}
+.wait-layout{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.match-box{background:var(--foam);border:1px solid var(--line);border-radius:var(--r);padding:11px}.match-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.match-row:last-child{border-bottom:0}.match-score{font-family:var(--serif);color:var(--blue);font-size:18px}.slot-card{border:1px solid var(--line);border-radius:var(--r);padding:11px;margin-bottom:8px;background:#fff}.slot-card strong{color:var(--blue)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,38,107,.35);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal-overlay.open{display:flex}.modal{background:#fff;border-radius:var(--r);max-width:620px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}.modal-head{background:var(--blue);color:#fff;padding:15px 19px;font-family:var(--serif);font-size:18px;display:flex;justify-content:space-between}.modal-x{background:none;border:0;color:var(--shell);font-size:22px}.modal-body{padding:18px;display:flex;flex-direction:column;gap:13px}.modal-foot{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}.row{display:flex;gap:10px}.row>*{flex:1}.check-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.check{background:var(--foam);border:1px solid var(--line);padding:7px;border-radius:var(--r);font-size:11px}.hint{font-size:11px;color:var(--bronze)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;padding:10px 18px;border-radius:var(--r);font-size:12px;box-shadow:var(--shadow);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}.toast.show{opacity:1}.empty{text-align:center;padding:30px;color:var(--muted);font-size:12px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:9px}.dot{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+@media(max-width:900px){.dashboard-grid,.wait-layout{grid-template-columns:1fr}}@media(max-width:620px){main{padding:10px}.row{flex-direction:column}.check-grid{grid-template-columns:repeat(2,1fr)}header{padding:11px}.brand .name{font-size:17px}.nav-date{min-width:auto;font-size:14px}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="brand">
-    <span class="name">Aphrodite Hills</span>
-    <span class="sub">Racket Club · Coach Schedule</span>
-  </div>
+  <div class="brand"><span class="name">Aphrodite Hills</span><span class="sub">Racket Club · Lesson Manager</span></div>
   <div class="spacer"></div>
-  <button id="syncBtn" class="sync-btn" title="Save and refresh from the cloud">Sync now</button>
-  <span id="syncStatus" class="sync-pill">Local only</span>
-  <div class="user-pick">
-    <span>Signed in as</span>
-    <select id="userSelect"></select>
-  </div>
+  <div class="sync"><span class="sync-dot" id="syncDot"></span><span id="syncStatus" class="sync-pill">Local</span></div>
+  <button class="header-btn" id="syncBtn">Sync now</button>
+  <button class="header-btn" id="refreshBtn">Refresh</button>
+  <div class="user-pick"><span>Receptionist</span><select id="userSelect"></select></div>
 </header>
-
-<nav class="tabs">
-  <button data-tab="schedule" class="active">Schedule</button>
-  <button data-tab="clients">Clients</button>
-  <button data-tab="waitlist">Waiting list <span id="waitBadge"></span></button>
-  <button data-tab="analytics">Analytics</button>
-  <button data-tab="notes">Notes <span id="noteBadge"></span></button>
-  <button data-tab="activity">Activity</button>
-  <button data-tab="settings">Settings</button>
+<nav id="nav">
+ <button data-tab="dashboard" class="active">Dashboard</button>
+ <button data-tab="schedule">Schedule</button>
+ <button data-tab="waitlist">Waiting list <span id="waitBadge"></span></button>
+ <button data-tab="clients">Clients</button>
+ <button data-tab="notes">Notes <span id="noteBadge"></span></button>
+ <button data-tab="activity">Activity</button>
+ <button data-tab="analytics">Analytics</button>
+ <button data-tab="settings">Settings</button>
 </nav>
-
 <main>
-  <!-- SCHEDULE -->
-  <section id="view-schedule" class="view active">
-    <div class="sched-bar">
-      <div class="seg">
-        <button id="viewWeek" class="active">Week</button>
-        <button id="viewDay">Day</button>
-      </div>
-      <button class="btn ghost sm" id="prevBtn">‹ Prev</button>
-      <button class="btn ghost sm" id="todayBtn">Today</button>
-      <button class="btn ghost sm" id="nextBtn">Next ›</button>
-      <span class="nav-date" id="navDate"></span>
-      <input type="date" id="jumpDate">
-      <button class="btn bronze sm" id="addBreakBtn">+ Break</button>
-      <span id="seasonPill" class="season-pill"></span>
-      <div class="spacer" style="flex:1"></div>
-      <label class="chk"><input type="checkbox" id="showOpen" checked> Show open slots</label>
-    </div>
-    <div class="grid-wrap"><div class="sgrid" id="sgrid"></div></div>
-    <div class="legend">
-      <span><i class="sw" style="background:var(--mple)"></i> Each client has its own colour</span>
-      <span><i class="sw" style="border:2px dashed var(--bronze);background:var(--shell)"></i> Casual / one-off</span>
-      <span><i class="sw" style="background:var(--mple);box-shadow:inset 0 0 0 2px var(--bronze)"></i> Moved this week</span>
-      <span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--pearl),var(--pearl) 3px,#c4c2bd 3px,#c4c2bd 6px)"></i> Break</span>
-      <span class="hint">Click an empty slot to book · drag a lesson to move it · click a break to edit</span>
-    </div>
-
-    <div class="panel" style="margin-top:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
-        <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin:0;font-size:18px">Available slots</h3>
-        <label class="chk">Min length
-          <select id="availMin" style="padding:5px 8px"><option value="60">1 hour</option><option value="90">1.5 hours</option></select>
-        </label>
-      </div>
-      <p class="muted" style="margin:0 0 12px">Open gaps in the dates shown above, after lessons, breaks and holidays. This is what you can offer a non-regular.</p>
-      <div id="availList"></div>
-    </div>
-  </section>
-
-  <!-- CLIENTS -->
-  <section id="view-clients" class="view">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-      <div><h2 class="section">Clients</h2><p class="muted">Regular slots repeat every week automatically. Add holidays to free a client's slots while they're away.</p></div>
-      <button class="btn" id="addClientBtn">+ Add client</button>
-    </div>
-    <div class="panel"><table><thead><tr>
-      <th>Name</th><th>Type</th><th>Contact</th><th>Weekly slots</th><th>Holidays</th><th></th>
-    </tr></thead><tbody id="clientRows"></tbody></table></div>
-  </section>
-
-  <!-- WAITING LIST -->
-  <section id="view-waitlist" class="view">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-      <div><h2 class="section">Waiting list</h2><p class="muted">People who want a lesson when there's no slot. When something frees up, hit Book and pick the open slot.</p></div>
-      <button class="btn" id="addWaitBtn">+ Add to waiting list</button>
-    </div>
-    <div class="panel"><table><thead><tr>
-      <th>Name</th><th>Contact</th><th>Wants</th><th>Added</th><th></th>
-    </tr></thead><tbody id="waitRows"></tbody></table></div>
-  </section>
-
-  <!-- ANALYTICS -->
-  <section id="view-analytics" class="view">
-    <h2 class="section">Analytics</h2>
-    <p class="muted">Utilisation is based on regular weekly slots against the coach's working hours.</p>
-    <div class="grid2" id="statCards" style="margin:16px 0"></div>
-    <div class="panel">
-      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Per-client breakdown</h3>
-      <table><thead><tr>
-        <th>Client</th><th>Type</th><th>Hours / week</th><th>Lessons / week</th><th>When they play</th>
-      </tr></thead><tbody id="analyticRows"></tbody></table>
-    </div>
-  </section>
-
-  <!-- NOTES -->
-  <section id="view-notes" class="view">
-    <h2 class="section">Notes between staff</h2>
-    <p class="muted">Leave a message for whoever covers the desk next. Click a note to mark it read.</p>
-    <div class="panel">
-      <div class="row" style="margin-bottom:12px">
-        <textarea id="noteText" rows="2" placeholder="e.g. Andreas asked to move his Thursday 18:00 to Friday next week, waiting on confirmation"></textarea>
-      </div>
-      <div style="text-align:right"><button class="btn" id="addNoteBtn">Post note</button></div>
-    </div>
-    <div id="noteList"></div>
-  </section>
-
-  <!-- ACTIVITY -->
-  <section id="view-activity" class="view">
-    <h2 class="section">Activity log</h2>
-    <p class="muted">Every schedule change is stamped with who made it, so nothing gets changed silently.</p>
-    <div class="panel" id="logList"></div>
-  </section>
-
-  <!-- SETTINGS -->
-  <section id="view-settings" class="view">
-    <h2 class="section">Settings</h2>
-    <div class="panel" style="max-width:560px">
-      <div class="row" style="margin-bottom:14px">
-        <label class="field">Coach name<input type="text" id="setCoach"></label>
-      </div>
-      <div class="row" style="margin-bottom:14px">
-        <label class="field">Opens at<select id="setOpen"></select></label>
-        <label class="field">Closes at<select id="setClose"></select></label>
-      </div>
-      <div style="margin-bottom:14px">
-        <div class="muted" style="margin-bottom:6px">Working days</div>
-        <div id="setDays" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-      </div>
-      <button class="btn" id="saveSettings">Save settings</button>
-    </div>
-    <div class="panel" style="max-width:560px">
-      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Summer &amp; winter</h3>
-      <p class="muted">Tap a month to flip it between summer and winter. Lessons and breaks are tagged to one season, so the schedule automatically shows the right version for whatever date you're looking at. Working hours above are shared across both.</p>
-      <div id="seasonMonths" style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:12px"></div>
-      <div class="legend" style="margin-top:12px">
-        <span><i class="sw" style="background:#B8862A"></i> Summer</span>
-        <span><i class="sw" style="background:#2C4A6E"></i> Winter</span>
-      </div>
-    </div>
-    <div class="panel" style="max-width:560px">
-      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Staff at the desk</h3>
-      <p class="muted">These names appear in the "signed in as" picker and get attached to every change.</p>
-      <div class="row" style="margin:12px 0">
-        <input type="text" id="newStaff" placeholder="Add a receptionist name">
-        <button class="btn bronze sm" id="addStaffBtn" style="flex:0 0 auto">Add</button>
-      </div>
-      <div id="staffList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-    <div class="panel" style="max-width:560px">
-      <h3 style="font-family:var(--serif);font-weight:500;color:var(--mple);margin-top:0">Backup</h3>
-      <p class="muted">Until this is connected to a shared database, export the data to move it between machines or keep a safety copy.</p>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn ghost sm" id="exportBtn">Export data (.json)</button>
-        <button class="btn ghost sm" id="importBtn">Import data</button>
-        <input type="file" id="importFile" accept="application/json" style="display:none">
-      </div>
-    </div>
-  </section>
+<section id="view-dashboard" class="view active">
+ <div class="section-head"><div><h2 class="section">Reception dashboard</h2><div class="muted">One screen for what needs attention, temporary openings and waiting-list demand.</div></div><button class="btn bronze" id="dashSync">Sync & refresh</button></div>
+ <div class="cards" id="statCards"></div>
+ <div class="dashboard-grid" style="margin-top:16px">
+  <div class="panel"><div class="section-head"><div><h3 style="margin:0">Needs attention</h3><div class="muted">Things another receptionist should not have to ask you about.</div></div></div><div id="attentionList"></div></div>
+  <div class="panel"><div class="section-head"><div><h3 style="margin:0">Temporary openings</h3><div class="muted">Holiday-created slots with suitable waiting-list matches.</div></div></div><div id="tempSlots"></div></div>
+ </div>
+ <div class="panel"><div class="section-head"><div><h3 style="margin:0">Recent activity</h3></div><button class="btn ghost sm" onclick="switchTab('activity')">View all</button></div><div id="recentActivity"></div></div>
+</section>
+<section id="view-schedule" class="view">
+ <div class="schedule-tools">
+  <div class="seg"><button id="viewWeek" class="active">Week</button><button id="viewDay">Day</button></div>
+  <button class="btn ghost sm" id="prevBtn">‹ Prev</button><button class="btn ghost sm" id="todayBtn">Today</button><button class="btn ghost sm" id="nextBtn">Next ›</button>
+  <span class="nav-date" id="navDate"></span><input type="date" id="jumpDate"><button class="btn bronze sm" id="addBreakBtn">+ Break</button><span id="seasonPill" class="badge blue"></span><div class="spacer"></div>
+  <label style="font-size:11px;color:var(--muted)"><input type="checkbox" id="showOpen" checked> Open labels</label>
+ </div>
+ <div class="grid-wrap"><div class="sgrid" id="sgrid"></div></div>
+ <div class="legend"><span><i class="dot" style="background:var(--blue)"></i>regular</span><span><i class="dot" style="background:var(--bronze)"></i>moved</span><span><i class="dot" style="background:var(--pearl)"></i>break</span><span>Click an empty slot to book · drag a lesson to move it</span></div>
+ <div class="panel" style="margin-top:15px"><div class="section-head"><div><h3 style="margin:0">Available slots</h3><div class="muted">Open gaps after lessons, breaks and holidays.</div></div><label class="field" style="width:100px">Minimum<select id="availMin"><option value="60">1 hour</option><option value="90">1.5h</option></select></label></div><div id="availList"></div></div>
+</section>
+<section id="view-waitlist" class="view">
+ <div class="section-head"><div><h2 class="section">Waiting list</h2><div class="muted">Structured availability lets the system find the right person instead of relying on free text.</div></div><button class="btn" id="addWaitBtn">+ Add person</button></div>
+ <div class="wait-layout">
+  <div class="panel"><div class="filters"><select id="waitFilter"><option value="all">All active</option><option value="regular">Permanent slot</option><option value="temporary">Temporary lessons</option><option value="offers">Offers awaiting response</option></select><select id="waitSort"><option value="queue">Queue order</option><option value="match">Best current match</option></select></div><div class="table-wrap"><table class="table"><thead><tr><th>Person</th><th>Looking for</th><th>Availability</th><th>Status</th><th></th></tr></thead><tbody id="waitRows"></tbody></table></div></div>
+  <div class="panel"><h3 style="margin-top:0">Open temporary slots</h3><div class="muted" style="margin-bottom:12px">Choose an opening to see who matches it.</div><div id="waitOpenings"></div></div>
+ </div>
+</section>
+<section id="view-clients" class="view">
+ <div class="section-head"><div><h2 class="section">Clients</h2><div class="muted">Regular schedules, contact details and holiday history.</div></div><button class="btn" id="addClientBtn">+ Add client</button></div>
+ <div class="panel table-wrap"><table class="table"><thead><tr><th>Name</th><th>Type</th><th>Contact</th><th>Regular slots</th><th>Upcoming holiday</th><th></th></tr></thead><tbody id="clientRows"></tbody></table></div>
+</section>
+<section id="view-notes" class="view">
+ <div class="section-head"><div><h2 class="section">Notes between staff</h2><div class="muted">Use notes for context; use structured statuses for bookings and offers.</div></div></div>
+ <div class="panel"><textarea id="noteText" rows="2" placeholder="e.g. Andreas asked whether Friday is possible next week..."></textarea><div style="text-align:right;margin-top:8px"><button class="btn" id="addNoteBtn">Post note</button></div></div><div id="noteList"></div>
+</section>
+<section id="view-activity" class="view"><div class="section-head"><div><h2 class="section">Activity</h2><div class="muted">Every change is stamped with the receptionist who made it.</div></div></div><div class="panel" id="logList"></div></section>
+<section id="view-analytics" class="view"><div class="section-head"><div><h2 class="section">Analytics</h2><div class="muted">Coach utilisation and waiting-list demand.</div></div></div><div class="cards" id="analyticsCards"></div><div class="panel table-wrap" style="margin-top:15px"><table class="table"><thead><tr><th>Client</th><th>Type</th><th>Hours/week</th><th>Lessons/week</th><th>When</th></tr></thead><tbody id="analyticRows"></tbody></table></div></section>
+<section id="view-settings" class="view">
+ <div class="section-head"><div><h2 class="section">Settings</h2><div class="muted">System configuration and manual cloud sync.</div></div></div>
+ <div class="panel" style="max-width:650px"><h3 style="margin-top:0">Coach</h3><div class="row"><label class="field">Coach name<input id="setCoach"></label><label class="field">Opens<select id="setOpen"></select></label><label class="field">Closes<select id="setClose"></select></label></div><div style="margin-top:12px"><div class="muted" style="margin-bottom:6px">Working days</div><div id="setDays" style="display:flex;gap:7px;flex-wrap:wrap"></div></div><button class="btn" id="saveSettings" style="margin-top:13px">Save settings</button></div>
+ <div class="panel" style="max-width:650px"><h3 style="margin-top:0">Seasons</h3><div class="muted">Tap a month to switch summer/winter.</div><div id="seasonMonths" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px"></div></div>
+ <div class="panel" style="max-width:650px"><h3 style="margin-top:0">Reception staff</h3><div class="row"><input id="newStaff" placeholder="Receptionist name"><button class="btn bronze" id="addStaffBtn" style="flex:0 0 auto">Add</button></div><div id="staffList" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"></div></div>
+ <div class="panel" style="max-width:650px"><h3 style="margin-top:0">Data & sync</h3><p class="muted">Edits are saved instantly on this device. Nothing is uploaded on every click. Use <b>Sync now</b> when you want to commit changes to the shared Google Sheet. Refresh only pulls the shared copy when you have no unsynced edits.</p><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn" id="settingsSync">Sync now</button><button class="btn ghost" id="exportBtn">Export JSON</button><button class="btn ghost" id="importBtn">Import JSON</button><input type="file" id="importFile" accept="application/json" hidden></div></div>
+</section>
 </main>
-
-<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
-<div class="toast" id="toast"></div>
-
+<div class="modal-overlay" id="overlay"><div class="modal" id="modal"></div></div><div class="toast" id="toast"></div>
 <script>
-/* =========================================================
-   Aphrodite Hills Racket Club — Coach Scheduler
-   ---------------------------------------------------------
-   Front end for GitHub Pages. With API_URL set, all data
-   lives in a shared Google Sheet via Apps Script, so every
-   receptionist sees the same live schedule. A local cache
-   keeps it instant and usable if the connection drops.
-   ========================================================= */
-
-const KEY='ah_racket_scheduler_v1';
-const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-const defaultState=()=>({
-  coach:{name:'Head Tennis Coach', open:8, close:20, days:[1,2,3,4,5,6]}, // Mon-Sat
-  seasons:{summerMonths:[4,5,6,7,8,9,10]}, // months counted as summer; the rest are winter
-  staff:['Reception'],
-  currentUser:'Reception',
-  clients:[],
-  regulars:[],
-  oneoffs:[],
-  exceptions:[],
-  holidays:[],
-  breaks:[],
-  notes:[],
-  waitlist:[],
-  log:[]
-});
-
-const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function seasonForDate(dateStr){
-  const month=pd(dateStr).getMonth()+1;
-  return ((state.seasons&&state.seasons.summerMonths)||[]).includes(month)?'summer':'winter';
-}
-function activeSeason(){return seasonForDate(ds(cursor));}
-
-/* curated client palette — deep, muted tones that sit with Mple blue + bronze */
+const API_URL="https://script.google.com/macros/s/AKfycbwESJ3Dx2LAhU5NkIX6dMDpUpYdJ1Zj8CobhpNPKasYKSM7hrsEzOR7HGPftE5OuvE/exec";
+const KEY='ah_racket_manager_v2';const USER_KEY='ah_racket_user_v2';
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],DOW_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PALETTE=['#003087','#8E7A6B','#2D5D3A','#6B4E71','#A14334','#1F6F78','#8A6D1E','#455A7A','#7A1F2B','#4A6B2A','#5A5550','#2C4A6E'];
-function nextColor(){
-  const used=state.clients.map(c=>c.color);
-  return PALETTE.find(p=>!used.includes(p))||PALETTE[state.clients.length%PALETTE.length];
-}
-function textOn(hex){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  const lum=(0.299*r+0.587*g+0.114*b)/255;
-  return lum>0.62?'#1d1d1d':'#F9F6F4';
-}
-
-let state=loadCache();
-let view='week';
-let cursor=startOfWeek(new Date());
-
-/* =========================================================
-   SYNC ENGINE — shared Google Sheet via Apps Script
-   ---------------------------------------------------------
-   Paste the Web App URL from your Apps Script deployment
-   between the quotes below. Leave it empty to run this file
-   in local-only mode (data stays in this browser).
-   ========================================================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbwESJ3Dx2LAhU5NkIX6dMDpUpYdJ1Zj8CobhpNPKasYKSM7hrsEzOR7HGPftE5OuvE/exec";   // e.g. "https://script.google.com/macros/s/AKfyc.../exec"
-
+const defaultState=()=>({coach:{name:'Head Tennis Coach',open:8,close:20,days:[1,2,3,4,5,6]},seasons:{summerMonths:[4,5,6,7,8,9,10]},staff:['Reception'],currentUser:'Reception',clients:[],regulars:[],oneoffs:[],exceptions:[],holidays:[],breaks:[],notes:[],waitlist:[],log:[]});
+function clone(x){return JSON.parse(JSON.stringify(x))}function uid(){return Math.random().toString(36).slice(2,10)}function now(){return new Date().toISOString()}function ds(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x}function fmtTime(m){return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`}function hm(v){const[a,b]=v.split(':').map(Number);return a*60+b}function fmtStamp(x){const d=new Date(x);return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function load(){let s=defaultState();try{const x=localStorage.getItem(KEY);if(x)Object.assign(s,JSON.parse(x))}catch(e){}try{s.currentUser=localStorage.getItem(USER_KEY)||s.currentUser}catch(e){}return s}
+let state=load(),cursor=startOfWeek(new Date()),view='week',dragData=null,prefill=null,dirtyOps=0,lastSynced=null,cloudBusy=false;
 const TABLES=['clients','regulars','oneoffs','exceptions','holidays','breaks','notes','waitlist','log'];
-let lastSynced=null;       // baseline snapshot for computing deltas
-let pending=0;             // in-flight writes
-let dirty=false;
-let pushTimer=null;
-const USER_KEY='ah_racket_user';
-
-function clone(o){return JSON.parse(JSON.stringify(o));}
-function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff),seasons:clone(state.seasons)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s;}
-
-/* ---- local cache (instant load + offline fallback) ---- */
-function loadCache(){
-  const base=defaultState();
-  try{const r=localStorage.getItem(KEY);if(r)Object.assign(base,JSON.parse(r));}catch(e){}
-  try{const u=localStorage.getItem(USER_KEY);if(u)base.currentUser=u;}catch(e){}
-  return base;
-}
-function cacheLocal(){
-  try{localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(USER_KEY,state.currentUser||'');}catch(e){}
-}
-
-/* ---- the one function every mutation already calls ---- */
-function save(){
-  cacheLocal();                       // instant local save — never blocks the UI
-  if(!API_URL)return;                 // local-only mode
-  dirty=true;
-  setStatus('pending');
-  clearTimeout(pushTimer);
-  pushTimer=setTimeout(flush,1500);   // push to the Sheet 1.5s after you stop
-}
-
-/* ---- network ---- */
-async function api(action,payload){
-  const res=await fetch(API_URL,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(Object.assign({action},payload||{}))
-  });
-  const json=await res.json();
-  if(json&&json.error)throw new Error(json.error);
-  return json;
-}
-
-function labelFor(t,r){
-  try{
-    if(t==='clients')return r.name;
-    if(t==='regulars')return clientName(r.clientId)+' · '+DOW[r.weekday]+' '+fmtTime(r.startMin);
-    if(t==='oneoffs')return clientName(r.clientId)+' · '+r.date+' '+fmtTime(r.startMin);
-    if(t==='exceptions')return r.type+' · '+(r.newDate||r.originalDate);
-    if(t==='holidays')return clientName(r.clientId)+' · '+r.start+'→'+r.end;
-    if(t==='breaks')return (r.label||'Break')+' · '+(r.recurring?DOW[r.weekday]:r.date);
-    if(t==='notes')return r.author+': '+(r.text||'').slice(0,40);
-    if(t==='waitlist')return clientName(r.clientId)+(r.note?' · '+r.note.slice(0,30):'');
-    if(t==='log')return (r.text||'').slice(0,50);
-  }catch(e){}
-  return r.id;
-}
-function buildOps(){
-  const ops=[];
-  const base=lastSynced||{};
-  TABLES.forEach(t=>{
-    const cur=state[t]||[], prev=base[t]||[];
-    const prevById={};prev.forEach(r=>prevById[r.id]=r);
-    const seen={};
-    cur.forEach(r=>{seen[r.id]=1;const p=prevById[r.id];
-      if(!p||JSON.stringify(p)!==JSON.stringify(r))ops.push({type:'upsert',table:t,id:r.id,label:labelFor(t,r),data:r});
-    });
-    prev.forEach(r=>{if(!seen[r.id])ops.push({type:'remove',table:t,id:r.id});});
-  });
-  if(JSON.stringify(base.coach)!==JSON.stringify(state.coach))ops.push({type:'meta',key:'coach',data:state.coach});
-  if(JSON.stringify(base.staff)!==JSON.stringify(state.staff))ops.push({type:'meta',key:'staff',data:state.staff});
-  if(JSON.stringify(base.seasons)!==JSON.stringify(state.seasons))ops.push({type:'meta',key:'seasons',data:state.seasons});
-  return ops;
-}
-async function flush(){
-  if(!dirty||!API_URL)return;
-  const ops=buildOps();
-  if(!ops.length){dirty=false;setStatus('ok');return;}
-  pending++;setStatus('saving');
-  try{
-    await api('write',{ops});
-    lastSynced=snapshot();
-    dirty=false;cacheLocal();
-    setStatus('ok');
-  }catch(e){
-    setStatus('offline');
-    setTimeout(()=>{if(dirty)flush();},4000); // quiet retry
-  }finally{pending--;}
-}
-async function pullAll(){
-  if(!API_URL)return false;
-  try{
-    const data=await api('read',{});
-    const cu=state.currentUser;
-    TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);
-    if(data.coach)state.coach=data.coach;
-    if(data.staff)state.staff=data.staff;
-    if(data.seasons)state.seasons=data.seasons;
-    state.currentUser=cu||(state.staff[0]||'');
-    lastSynced=snapshot();
-    cacheLocal();
-    renderAll();
-    setStatus('ok');
-    return true;
-  }catch(e){setStatus('offline');return false;}
-}
-/* manual refresh button: save anything pending, then pull the latest */
-async function syncNow(){
-  if(!API_URL){toast('Local only — no cloud configured');return;}
-  setStatus('saving');
-  await flush();
-  const ok=await pullAll();
-  toast(ok?'Up to date':'Could not reach the cloud');
-}
-/* on tab close / hide: make sure the last change reaches the Sheet */
-function beaconFlush(){
-  if(!API_URL||!dirty)return;
-  const ops=buildOps();
-  if(!ops.length)return;
-  try{
-    navigator.sendBeacon(API_URL,new Blob([JSON.stringify({action:'write',ops})],{type:'text/plain;charset=UTF-8'}));
-    lastSynced=snapshot();dirty=false;cacheLocal();
-  }catch(e){}
-}
-function startSync(){
-  if(!API_URL){setStatus('local');return;}
-  setStatus('saving');
-  pullAll();   // one pull on open, in case another machine was used last
-  window.addEventListener('beforeunload',beaconFlush);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')beaconFlush();});
-}
-function setStatus(s){
-  const el=document.getElementById('syncStatus');if(!el)return;
-  const map={ok:['Saved','#2D5D3A'],pending:['Unsaved','#8A6D1E'],saving:['Saving…','#8A6D1E'],offline:['Offline','#8a2a22'],local:['Local only','#8E7A6B']};
-  const[txt,col]=map[s]||map.local;
-  el.textContent=txt;el.style.background=col;
-}
-
-/* ---------- date helpers ---------- */
-function ds(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
-function pd(s){const[y,m,dd]=s.split('-').map(Number);return new Date(y,m-1,dd);}
-function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
-function startOfWeek(d){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;} // Monday start
-function fmtTime(min){const h=Math.floor(min/60),m=min%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
-function uid(){return Math.random().toString(36).slice(2,9);}
-function now(){return new Date().toISOString();}
-function fmtStamp(iso){const d=new Date(iso);return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});}
-
-/* ---------- lookups ---------- */
-const client=id=>state.clients.find(c=>c.id===id);
-const clientName=id=>{const c=client(id);return c?c.name:'Unknown';};
-function isOnHoliday(cid,dateStr){return state.holidays.some(h=>h.clientId===cid&&dateStr>=h.start&&dateStr<=h.end);}
-function exceptionFor(rid,dateStr){return state.exceptions.find(e=>e.regularId===rid&&e.originalDate===dateStr);}
-function awayClients(dateStr){return state.holidays.filter(h=>dateStr>=h.start&&dateStr<=h.end).map(h=>clientName(h.clientId));}
-
-/* ---------- build instances for a date ---------- */
-function getInstances(dateStr){
-  const wd=pd(dateStr).getDay();
-  const season=seasonForDate(dateStr);
-  const out=[];
-  state.regulars.forEach(r=>{
-    if(r.weekday!==wd)return;
-    if(r.season&&r.season!==season)return; // season-specific slot (no season = both)
-    if(dateStr<r.startDate)return;
-    if(r.endDate&&dateStr>r.endDate)return;
-    if(isOnHoliday(r.clientId,dateStr))return;
-    const ex=exceptionFor(r.id,dateStr);
-    if(ex)return; // cancelled or moved away
-    out.push({kind:'regular',regularId:r.id,clientId:r.clientId,date:dateStr,startMin:r.startMin,durationMin:r.durationMin});
-  });
-  state.exceptions.forEach(ex=>{
-    if(ex.type!=='move'||ex.newDate!==dateStr)return;
-    const r=state.regulars.find(x=>x.id===ex.regularId);if(!r)return;
-    out.push({kind:'moved',exceptionId:ex.id,regularId:r.id,clientId:r.clientId,date:dateStr,originalDate:ex.originalDate,startMin:ex.newStartMin,durationMin:ex.newDurationMin||r.durationMin});
-  });
-  state.oneoffs.forEach(o=>{
-    if(o.date!==dateStr)return;
-    out.push({kind:'oneoff',oneoffId:o.id,clientId:o.clientId,date:dateStr,startMin:o.startMin,durationMin:o.durationMin,note:o.note});
-  });
-  (state.breaks||[]).forEach(b=>{
-    if(b.season&&b.season!==season)return; // no season = applies all year
-    if(b.recurring){
-      if(b.weekday!==wd)return;
-      if(b.startDate&&dateStr<b.startDate)return;
-      if(b.endDate&&dateStr>b.endDate)return;
-    }else if(b.date!==dateStr)return;
-    out.push({kind:'break',breakId:b.id,date:dateStr,startMin:b.startMin,durationMin:b.durationMin,label:b.label||'Break',recurring:b.recurring});
-  });
-  return out.sort((a,b)=>a.startMin-b.startMin);
-}
-
-function overlaps(dateStr,startMin,durationMin,ignore){
-  const end=startMin+durationMin;
-  return getInstances(dateStr).some(i=>{
-    if(ignore&&sameInstance(i,ignore))return false;
-    return startMin<i.startMin+i.durationMin && end>i.startMin;
-  });
-}
-function sameInstance(a,b){
-  if(a.kind!==b.kind)return false;
-  if(a.kind==='regular')return a.regularId===b.regularId&&a.date===b.date;
-  if(a.kind==='moved')return a.exceptionId===b.exceptionId;
-  if(a.kind==='break')return a.breakId===b.breakId;
-  return a.oneoffId===b.oneoffId;
-}
-
-/* ---------- logging ---------- */
-function logEvent(text){
-  state.log.unshift({id:uid(),author:state.currentUser||'Someone',ts:now(),text});
-  state.log=state.log.slice(0,200);
-}
-
-/* ========================================================
-   SCHEDULE RENDER
-   ======================================================== */
-function blocksPerDay(){return (state.coach.close-state.coach.open)*2;}
-function openMin(){return state.coach.open*60;}
-
-function renderSchedule(){
-  const grid=document.getElementById('sgrid');
-  const days = view==='week'
-    ? Array.from({length:7},(_,i)=>addDays(cursor,i)).filter(d=>state.coach.days.includes(d.getDay()))
-    : [cursor];
-  const nb=blocksPerDay();
-  grid.style.gridTemplateColumns=`52px repeat(${days.length}, 1fr)`;
-  // rows: 1 header + nb
-  grid.innerHTML='';
-  const frag=document.createDocumentFragment();
-
-  // header corner
-  const corner=document.createElement('div');corner.className='corner';corner.style.gridColumn='1';corner.style.gridRow='1';frag.appendChild(corner);
-
-  const today=ds(new Date());
-  days.forEach((d,ci)=>{
-    const h=document.createElement('div');
-    h.className='day-head'+(ds(d)===today?' today':'');
-    h.style.gridColumn=(ci+2);h.style.gridRow='1';
-    const away=awayClients(ds(d));
-    h.innerHTML=`<div class="dow">${DOW[d.getDay()]}</div><div class="dnum">${d.getDate()} ${d.toLocaleDateString(undefined,{month:'short'})}</div>`
-      +(away.length?`<div class="away">Away: ${away.join(', ')}</div>`:'');
-    frag.appendChild(h);
-  });
-
-  // time labels
-  for(let b=0;b<nb;b++){
-    const min=openMin()+b*30;
-    const lab=document.createElement('div');
-    lab.className='time-label'+(min%60===0?' hour':'');
-    lab.style.gridColumn='1';lab.style.gridRow=(b+2);
-    lab.textContent=min%60===0?fmtTime(min):'';
-    frag.appendChild(lab);
-  }
-
-  const showOpen=document.getElementById('showOpen').checked;
-
-  days.forEach((d,ci)=>{
-    const dateStr=ds(d);
-    const inst=getInstances(dateStr);
-    const covered=new Array(nb).fill(false);
-    // place bookings
-    inst.forEach(it=>{
-      const sb=Math.round((it.startMin-openMin())/30);
-      const span=Math.max(1,Math.round(it.durationMin/30));
-      if(sb<0||sb>=nb)return;
-      for(let k=sb;k<sb+span&&k<nb;k++)covered[k]=true;
-      const c=client(it.clientId);
-      const el=document.createElement('div');
-      el.style.gridColumn=(ci+2);
-      el.style.gridRow=`${sb+2} / span ${Math.min(span,nb-sb)}`;
-      if(it.kind==='break'){
-        el.className='booking break';
-        el.innerHTML=`<div class="bname">${escapeHtml(it.label)}</div>`
-          +`<div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`;
-        el.addEventListener('click',()=>openBreakModal(it));
-        frag.appendChild(el);
-        return;
-      }
-      const col=(c&&c.color)||'#003087';
-      const cls=it.kind==='moved'?'moved':(c&&c.type==='casual'?'casual':'regular');
-      el.className='booking '+cls;
-      el.style.background=col;
-      el.style.color=textOn(col);
-      el.draggable=true;
-      const tag=it.kind==='moved'?'Moved':(it.kind==='oneoff'?'One-off':'');
-      el.innerHTML=`<div class="bname">${clientName(it.clientId)}</div>`
-        +`<div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`
-        +(tag?`<div class="btag">${tag}</div>`:'');
-      el.addEventListener('click',()=>openBookingModal(it));
-      el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify(it));dragData=it;});
-      frag.appendChild(el);
-    });
-    // empty slots (covered blocks are left out entirely) + open-run labels
-    let run=0,runStart=0;
-    for(let b=0;b<nb;b++){
-      const min=openMin()+b*30;
-      if(!covered[b]){
-        const slot=document.createElement('div');
-        slot.className='slot'+(min%60===0?' hour':'');
-        slot.style.gridColumn=(ci+2);slot.style.gridRow=(b+2);
-        slot.addEventListener('click',()=>openAddModal(dateStr,min));
-        slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover');});
-        slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'));
-        slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');handleDrop(dateStr,min);});
-        frag.appendChild(slot);
-        if(run===0)runStart=b;run++;
-      }
-      if(covered[b]||b===nb-1){
-        if(showOpen&&run>=2){
-          const lbl=document.createElement('div');lbl.className='open-run';
-          lbl.textContent=`Open ${run/2}h`;
-          const marker=document.createElement('div');
-          marker.style.gridColumn=(ci+2);marker.style.gridRow=(runStart+2);
-          marker.style.position='relative';marker.style.pointerEvents='none';
-          marker.appendChild(lbl);frag.appendChild(marker);
-        }
-        run=0;
-      }
-    }
-  });
-
-  grid.appendChild(frag);
-
-  document.getElementById('navDate').textContent = view==='week'
-    ? `${cursor.toLocaleDateString(undefined,{day:'numeric',month:'short'})} – ${addDays(cursor,6).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}`
-    : cursor.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-
-  const sp=document.getElementById('seasonPill');
-  if(sp){
-    const s0=seasonForDate(ds(days[0])), s1=seasonForDate(ds(days[days.length-1]));
-    const s=s0;
-    sp.className='season-pill '+s;
-    sp.innerHTML=(s==='summer'?'Summer schedule':'Winter schedule')+(s0!==s1?'<span class="sub">changes midweek</span>':'');
-  }
-
-  renderAvailability(days);
-}
-
-/* free gaps (>= min length) across the visible days */
-function renderAvailability(days){
-  const nb=blocksPerDay();
-  const minBlocks=Math.round(parseInt(document.getElementById('availMin').value,10)/30);
-  const out=days.map(d=>{
-    const dateStr=ds(d);
-    const covered=new Array(nb).fill(false);
-    getInstances(dateStr).forEach(it=>{
-      const sb=Math.round((it.startMin-openMin())/30);
-      const span=Math.max(1,Math.round(it.durationMin/30));
-      for(let k=sb;k<sb+span&&k<nb;k++)if(k>=0)covered[k]=true;
-    });
-    const runs=[];let run=0,start=0;
-    for(let b=0;b<=nb;b++){
-      if(b<nb&&!covered[b]){if(run===0)start=b;run++;}
-      else{if(run>=minBlocks)runs.push([start,run]);run=0;}
-    }
-    const label=d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
-    if(!runs.length)return `<div class="avail-day"><span class="ad-date">${label}</span><span class="avail-none">Fully booked</span></div>`;
-    const chips=runs.map(([s,len])=>{
-      const from=openMin()+s*30, to=from+len*30;
-      return `<span class="avail-chip">${fmtTime(from)}–${fmtTime(to)}</span>`;
-    }).join('');
-    return `<div class="avail-day"><span class="ad-date">${label}</span><span>${chips}</span></div>`;
+function snapshot(){const s={coach:clone(state.coach),staff:clone(state.staff),seasons:clone(state.seasons)};TABLES.forEach(t=>s[t]=clone(state[t]||[]));return s}
+function cache(){try{localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(USER_KEY,state.currentUser||'')}catch(e){}}
+function markChanged(){dirtyOps++;cache();setSyncStatus('dirty')}
+function logEvent(t){state.log.unshift({id:uid(),author:state.currentUser||'Reception',ts:now(),text:t});state.log=state.log.slice(0,300)}
+function setSyncStatus(s){const el=document.getElementById('syncStatus'),dot=document.getElementById('syncDot');if(!el)return;const m={clean:['Saved','#2D5D3A'],dirty:[`${dirtyOps} unsynced`,'#8A6D1E'],saving:['Syncing…','#8A6D1E'],offline:['Offline','#8A2A22']};const [t,c]=m[s]||m.dirty;el.textContent=t;el.style.background=c;dot.style.background=c}
+async function api(action,payload={}){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...payload})});const j=await r.json();if(j&&j.error)throw Error(j.error);return j}
+function buildOps(){const ops=[],base=lastSynced||{};TABLES.forEach(t=>{const cur=state[t]||[],prev=base[t]||[],pb={};prev.forEach(r=>pb[r.id]=r);const seen={};cur.forEach(r=>{seen[r.id]=1;const p=pb[r.id];if(!p||JSON.stringify(p)!==JSON.stringify(r))ops.push({type:'upsert',table:t,id:r.id,label:labelFor(t,r),data:r})});prev.forEach(r=>{if(!seen[r.id])ops.push({type:'remove',table:t,id:r.id})})});if(JSON.stringify(base.coach)!==JSON.stringify(state.coach))ops.push({type:'meta',key:'coach',data:state.coach});if(JSON.stringify(base.staff)!==JSON.stringify(state.staff))ops.push({type:'meta',key:'staff',data:state.staff});if(JSON.stringify(base.seasons)!==JSON.stringify(state.seasons))ops.push({type:'meta',key:'seasons',data:state.seasons});return ops}
+function labelFor(t,r){if(t==='clients')return r.name;if(t==='regulars')return `${clientName(r.clientId)} · ${DOW[r.weekday]} ${fmtTime(r.startMin)}`;if(t==='oneoffs')return `${clientName(r.clientId)} · ${r.date}`;if(t==='holidays')return `${clientName(r.clientId)} · ${r.start}→${r.end}`;if(t==='waitlist')return `${waitName(r)} · ${r.kind||'temporary'}`;return (r.text||r.label||r.name||r.id||'').slice(0,70)}
+async function syncNow(){if(cloudBusy)return;cloudBusy=true;setSyncStatus('saving');try{const ops=buildOps();if(ops.length){await api('write',{ops})}const data=await api('read',{});const cu=state.currentUser;TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);if(data.coach)state.coach=data.coach;if(data.staff)state.staff=data.staff;if(data.seasons)state.seasons=data.seasons;state.currentUser=cu||state.staff[0]||'';lastSynced=snapshot();dirtyOps=0;cache();renderAll();setSyncStatus('clean');toast('Shared data is up to date')}catch(e){setSyncStatus('offline');toast('Sync failed — local changes are safe on this device')}finally{cloudBusy=false}}
+async function refreshOnly(){if(dirtyOps){toast('You have unsynced changes — use Sync now first');return}cloudBusy=true;setSyncStatus('saving');try{const data=await api('read',{}),cu=state.currentUser;TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);if(data.coach)state.coach=data.coach;if(data.staff)state.staff=data.staff;if(data.seasons)state.seasons=data.seasons;state.currentUser=cu;lastSynced=snapshot();cache();renderAll();dirtyOps=0;setSyncStatus('clean');toast('Refreshed from shared data')}catch(e){setSyncStatus('offline');toast('Could not reach shared data')}finally{cloudBusy=false}}
+function seasonForDate(s){return (state.seasons?.summerMonths||[]).includes(pd(s).getMonth()+1)?'summer':'winter'}function client(id){return state.clients.find(c=>c.id===id)}function clientName(id){return client(id)?.name||'Unknown'}function waitName(w){return w.clientId?clientName(w.clientId):(w.name||'Unknown')}function isHoliday(cid,date){return state.holidays.some(h=>h.clientId===cid&&date>=h.start&&date<=h.end)}
+function getInstances(date){const wd=pd(date).getDay(),season=seasonForDate(date),out=[];state.regulars.forEach(r=>{if(r.weekday!==wd|| (r.season&&r.season!==season)||date<r.startDate||(r.endDate&&date>r.endDate)||isHoliday(r.clientId,date))return;const ex=state.exceptions.find(e=>e.regularId===r.id&&e.originalDate===date);if(ex)return;out.push({kind:'regular',regularId:r.id,clientId:r.clientId,date,startMin:r.startMin,durationMin:r.durationMin})});state.exceptions.forEach(e=>{if(e.type==='move'&&e.newDate===date){const r=state.regulars.find(x=>x.id===e.regularId);if(r)out.push({kind:'moved',exceptionId:e.id,regularId:r.id,clientId:r.clientId,date,originalDate:e.originalDate,startMin:e.newStartMin,durationMin:e.newDurationMin||r.durationMin})}});state.oneoffs.forEach(o=>{if(o.date===date)out.push({kind:'oneoff',oneoffId:o.id,clientId:o.clientId,date,startMin:o.startMin,durationMin:o.durationMin})});(state.breaks||[]).forEach(b=>{if(b.season&&b.season!==season)return;if(b.recurring){if(b.weekday!==wd||(b.startDate&&date<b.startDate)||(b.endDate&&date>b.endDate))return}else if(b.date!==date)return;out.push({kind:'break',breakId:b.id,date,startMin:b.startMin,durationMin:b.durationMin,label:b.label||'Break'})});return out.sort((a,b)=>a.startMin-b.startMin)}
+function overlaps(date,start,dur,ignore){return getInstances(date).some(i=>{if(ignore&&same(i,ignore))return false;return start<i.startMin+i.durationMin&&start+dur>i.startMin})}function same(a,b){if(a.kind!==b.kind)return false;if(a.kind==='regular')return a.regularId===b.regularId&&a.date===b.date;if(a.kind==='moved')return a.exceptionId===b.exceptionId;if(a.kind==='break')return a.breakId===b.breakId;return a.oneoffId===b.oneoffId}
+function openRuns(date,minDur=60){const nb=(state.coach.close-state.coach.open)*2,covered=new Array(nb).fill(false);getInstances(date).forEach(i=>{const s=Math.round((i.startMin-state.coach.open*60)/30),n=Math.ceil(i.durationMin/30);for(let k=Math.max(0,s);k<Math.min(nb,s+n);k++)covered[k]=true});const runs=[];let run=0,st=0;for(let b=0;b<=nb;b++){if(b<nb&&!covered[b]){if(!run)st=b;run++}else{if(run*30>=minDur)runs.push({start:state.coach.open*60+st*30,duration:run*30});run=0}}return runs}
+function renderSchedule(){const grid=document.getElementById('sgrid');const days=view==='week'?Array.from({length:7},(_,i)=>addDays(cursor,i)).filter(d=>state.coach.days.includes(d.getDay())):[cursor];const nb=(state.coach.close-state.coach.open)*2;grid.style.gridTemplateColumns=`52px repeat(${days.length},1fr)`;grid.innerHTML='';const frag=document.createDocumentFragment();let c=document.createElement('div');c.className='corner';c.style.gridColumn='1';c.style.gridRow='1';frag.appendChild(c);days.forEach((d,i)=>{const h=document.createElement('div');h.className='day-head'+(ds(d)===ds(new Date())?' today':'');h.style.gridColumn=i+2;h.style.gridRow=1;const away=state.holidays.filter(x=>ds(d)>=x.start&&ds(d)<=x.end).map(x=>clientName(x.clientId));h.innerHTML=`<div class="dow">${DOW[d.getDay()]}</div><div class="dnum">${d.getDate()} ${d.toLocaleDateString(undefined,{month:'short'})}</div>${away.length?`<div class="away">Away: ${esc(away.join(', '))}</div>`:''}`;frag.appendChild(h)});for(let b=0;b<nb;b++){const m=state.coach.open*60+b*30;const l=document.createElement('div');l.className='time-label'+(m%60===0?' hour':'');l.style.gridColumn=1;l.style.gridRow=b+2;l.textContent=m%60===0?fmtTime(m):'';frag.appendChild(l)}const show=document.getElementById('showOpen').checked;days.forEach((d,ci)=>{const date=ds(d),inst=getInstances(date),covered=new Array(nb).fill(false);inst.forEach(it=>{const sb=Math.round((it.startMin-state.coach.open*60)/30),span=Math.max(1,Math.round(it.durationMin/30));for(let k=sb;k<Math.min(nb,sb+span);k++)covered[k]=true;const el=document.createElement('div');el.style.gridColumn=ci+2;el.style.gridRow=`${sb+2}/span ${Math.min(span,nb-sb)}`;if(it.kind==='break'){el.className='booking break';el.innerHTML=`<div class="bname">${esc(it.label)}</div><div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>`;el.onclick=()=>breakModal(it);frag.appendChild(el);return}const col=client(it.clientId)?.color||varBlue();el.className='booking '+(it.kind==='moved'?'moved':'');el.style.background=col;el.style.color=textOn(col);el.draggable=true;el.innerHTML=`<div class="bname">${esc(clientName(it.clientId))}</div><div class="btime">${fmtTime(it.startMin)}–${fmtTime(it.startMin+it.durationMin)}</div>${it.kind==='moved'?'<div class="btag">Moved</div>':''}`;el.onclick=()=>bookingModal(it);el.ondragstart=()=>dragData=it;frag.appendChild(el)});let run=0,st=0;for(let b=0;b<nb;b++){const m=state.coach.open*60+b*30;if(!covered[b]){const slot=document.createElement('div');slot.className='slot'+(m%60===0?' hour':'');slot.style.gridColumn=ci+2;slot.style.gridRow=b+2;slot.onclick=()=>addBookingModal(date,m);slot.ondragover=e=>{e.preventDefault();slot.classList.add('dragover')};slot.ondragleave=()=>slot.classList.remove('dragover');slot.ondrop=e=>{e.preventDefault();slot.classList.remove('dragover');dropLesson(date,m)};frag.appendChild(slot);if(!run)st=b;run++}else if(run){if(show&&run>=2){const x=document.createElement('div');x.className='open-run';x.textContent=`Open ${run/2}h`;x.style.gridColumn=ci+2;x.style.gridRow=st+2;x.style.position='relative';x.style.pointerEvents='none';frag.appendChild(x)}run=0}if(b===nb-1&&run&&show&&run>=2){const x=document.createElement('div');x.className='open-run';x.textContent=`Open ${run/2}h`;x.style.gridColumn=ci+2;x.style.gridRow=st+2;x.style.position='relative';x.style.pointerEvents='none';frag.appendChild(x)}}});grid.appendChild(frag);document.getElementById('navDate').textContent=view==='week'?`${cursor.toLocaleDateString(undefined,{day:'numeric',month:'short'})} – ${addDays(cursor,6).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}`:cursor.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});const sp=document.getElementById('seasonPill');sp.textContent=seasonForDate(ds(days[0]))==='summer'?'Summer schedule':'Winter schedule';renderAvailability(days)}
+function varBlue(){return '#003087'}function textOn(h){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return ((.299*r+.587*g+.114*b)/255)>.62?'#1d1d1d':'#fff'}
+function renderAvailability(days){const min=+document.getElementById('availMin').value;document.getElementById('availList').innerHTML=days.map(d=>{const runs=openRuns(ds(d),min);return `<div class="list-row"><b style="color:var(--blue);min-width:150px">${d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}</b><div style="flex:1">${runs.length?runs.map(r=>`<span class="badge grey" style="margin:2px">${fmtTime(r.start)}–${fmtTime(r.start+r.duration)}</span>`).join(''):'<span class="small">Fully booked</span>'}</div></div>`}).join('')||'<div class="empty">No working days.</div>'}
+function dropLesson(date,min){if(!dragData)return;const it=dragData;dragData=null;if(overlaps(date,min,it.durationMin,it)){toast('That slot is already taken');return}const who=clientName(it.clientId);if(it.kind==='regular')state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:date,newStartMin:min,newDurationMin:it.durationMin});else if(it.kind==='moved'){const e=state.exceptions.find(x=>x.id===it.exceptionId);if(e){e.newDate=date;e.newStartMin=min}}else{const o=state.oneoffs.find(x=>x.id===it.oneoffId);if(o){o.date=date;o.startMin=min}}logEvent(`Moved ${who} → ${date} ${fmtTime(min)}`);markChanged();renderAll();toast('Moved locally — sync when ready')}
+function openModal(html){document.getElementById('modal').innerHTML=html;document.getElementById('overlay').classList.add('open')}function closeModal(){document.getElementById('overlay').classList.remove('open')}document.getElementById('overlay').onclick=e=>{if(e.target.id==='overlay')closeModal()}
+function requireUser(){if(!state.currentUser){toast('Select your receptionist name first');return false}return true}
+function clientOptions(sel=''){return state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.name)}</option>`).join('')}
+function addBookingModal(date,min){if(!requireUser())return;openModal(`<div class="modal-head">Book lesson <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="hint">${pd(date).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})} · ${fmtTime(min)}</div><label class="field">Client<select id="mclient">${clientOptions(prefill?.clientId||'')}</select></label><div class="row"><label class="field">Start<input type="time" id="mstart" step="1800" value="${fmtTime(min)}"></label><label class="field">Duration<select id="mdur"><option value="60">1 hour</option><option value="90">1.5 hours</option></select></label></div><label class="check"><input type="checkbox" id="mrepeat"> Make this a weekly regular slot</label><label class="field">Note<input id="mnote" placeholder="Optional"></label></div><div class="modal-foot"><button class="btn ghost sm" onclick="prefill=null;closeModal()">Cancel</button><button class="btn" onclick="confirmBooking('${date}')">Book</button></div>`)}
+function confirmBooking(date){const cid=document.getElementById('mclient').value,start=hm(document.getElementById('mstart').value),dur=+document.getElementById('mdur').value,rep=document.getElementById('mrepeat').checked;if(overlaps(date,start,dur)){toast('That slot is already taken');return}const who=clientName(cid);if(rep)state.regulars.push({id:uid(),clientId:cid,weekday:pd(date).getDay(),startMin:start,durationMin:dur,startDate:date,endDate:null,season:seasonForDate(date)});else state.oneoffs.push({id:uid(),clientId:cid,date,startMin:start,durationMin:dur,note:document.getElementById('mnote').value.trim()});if(prefill){const w=state.waitlist.find(x=>x.id===prefill.waitId);if(w){w.status='booked';w.bookedAt=now();w.offerStatus='accepted'}prefill=null}logEvent(`Booked ${who} on ${date} ${fmtTime(start)}`);markChanged();closeModal();renderAll();toast('Booked locally — sync when ready')}
+function bookingModal(it){const who=clientName(it.clientId);openModal(`<div class="modal-head">${esc(who)} <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="hint">${it.kind==='regular'?'Regular weekly slot':it.kind==='moved'?'Moved this week':'One-off'} · ${it.date}</div><div class="row"><label class="field">Date<input type="date" id="edate" value="${it.date}"></label><label class="field">Start<input type="time" id="estart" value="${fmtTime(it.startMin)}" step="1800"></label><label class="field">Duration<select id="edur"><option value="60" ${it.durationMin===60?'selected':''}>1 hour</option><option value="90" ${it.durationMin===90?'selected':''}>1.5 hours</option></select></label></div></div><div class="modal-foot"><button class="btn danger sm" onclick='cancelOccurrence(${JSON.stringify(it)})'>${it.kind==='oneoff'?'Delete':'Cancel occurrence'}</button><button class="btn ghost sm" onclick="closeModal()">Close</button><button class="btn" onclick='saveOccurrence(${JSON.stringify(it)})'>Save</button></div>`)}
+function saveOccurrence(it){const date=document.getElementById('edate').value,start=hm(document.getElementById('estart').value),dur=+document.getElementById('edur').value;if(overlaps(date,start,dur,it)){toast('That slot is taken');return}if(it.kind==='regular')state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:date,newStartMin:start,newDurationMin:dur});else if(it.kind==='moved'){const e=state.exceptions.find(x=>x.id===it.exceptionId);e.newDate=date;e.newStartMin=start;e.newDurationMin=dur}else{const o=state.oneoffs.find(x=>x.id===it.oneoffId);o.date=date;o.startMin=start;o.durationMin=dur}logEvent(`Updated ${clientName(it.clientId)} → ${date} ${fmtTime(start)}`);markChanged();closeModal();renderAll();toast('Saved locally')}
+function cancelOccurrence(it){if(it.kind==='regular')state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'cancel'});else if(it.kind==='moved'){const e=state.exceptions.find(x=>x.id===it.exceptionId);e.type='cancel'}else state.oneoffs=state.oneoffs.filter(o=>o.id!==it.oneoffId);logEvent(`Cancelled ${clientName(it.clientId)} on ${it.date}`);markChanged();closeModal();renderAll();toast('Removed locally')}
+function breakModal(it){const b=state.breaks.find(x=>x.id===it.breakId);openModal(`<div class="modal-head">Break <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><label class="field">Label<input id="bklabel" value="${esc(b.label||'Break')}"></label><div class="row"><label class="field">Start<input type="time" id="bkstart" value="${fmtTime(b.startMin)}" step="1800"></label><label class="field">End<input type="time" id="bkend" value="${fmtTime(b.startMin+b.durationMin)}" step="1800"></label></div></div><div class="modal-foot"><button class="btn danger sm" onclick="deleteBreak('${b.id}')">Delete</button><button class="btn ghost sm" onclick="closeModal()">Close</button><button class="btn" onclick="saveBreak('${b.id}')">Save</button></div>`)}
+function saveBreak(id){const b=state.breaks.find(x=>x.id===id),s=hm(document.getElementById('bkstart').value),e=hm(document.getElementById('bkend').value);if(e<=s){toast('End must be after start');return}b.startMin=s;b.durationMin=e-s;b.label=document.getElementById('bklabel').value.trim()||'Break';logEvent(`Updated break ${b.label}`);markChanged();closeModal();renderAll()}
+function deleteBreak(id){state.breaks=state.breaks.filter(x=>x.id!==id);logEvent('Removed break');markChanged();closeModal();renderAll()}
+function addBreak(){if(!requireUser())return;const date=ds(cursor);openModal(`<div class="modal-head">Add break <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="row"><label class="field">Date<input type="date" id="bdate" value="${date}"></label><label class="field">Label<input id="blabel" value="Lunch"></label></div><div class="row"><label class="field">Start<input type="time" id="bstart" value="13:00" step="1800"></label><label class="field">End<input type="time" id="bend" value="14:00" step="1800"></label></div><label class="check"><input type="checkbox" id="brec"> Repeat weekly</label></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="confirmBreak()">Add</button></div>`)}
+function confirmBreak(){const date=document.getElementById('bdate').value,s=hm(document.getElementById('bstart').value),e=hm(document.getElementById('bend').value);if(e<=s){toast('End must be after start');return}const b={id:uid(),label:document.getElementById('blabel').value.trim()||'Break',startMin:s,durationMin:e-s,recurring:document.getElementById('brec').checked};if(b.recurring)b.weekday=pd(date).getDay();else b.date=date;state.breaks.push(b);logEvent(`Added ${b.label} ${fmtTime(s)}–${fmtTime(e)}`);markChanged();closeModal();renderAll()}
+function editClient(id){const c=id?client(id):null;openModal(`<div class="modal-head">${c?'Edit client':'Add client'} <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="row"><label class="field">Name<input id="cname" value="${esc(c?.name||'')}"></label><label class="field">Phone<input id="cphone" value="${esc(c?.phone||'')}"></label></div><div class="row"><label class="field">Type<select id="ctype"><option value="regular" ${!c||c.type==='regular'?'selected':''}>Regular</option><option value="casual" ${c?.type==='casual'?'selected':''}>Casual</option></select></label><label class="field">Colour<input type="color" id="ccolor" value="${c?.color||PALETTE[state.clients.length%PALETTE.length]}"></label></div></div><div class="modal-foot">${c?`<button class="btn danger sm" onclick="deleteClient('${c.id}')">Delete</button>`:''}<button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveClient('${id||''}')">Save</button></div>`)}
+function saveClient(id){const name=document.getElementById('cname').value.trim();if(!name){toast('Name required');return}if(id){const c=client(id);Object.assign(c,{name,phone:document.getElementById('cphone').value.trim(),type:document.getElementById('ctype').value,color:document.getElementById('ccolor').value})}else state.clients.push({id:uid(),name,phone:document.getElementById('cphone').value.trim(),type:document.getElementById('ctype').value,color:document.getElementById('ccolor').value});logEvent(`${id?'Updated':'Added'} client ${name}`);markChanged();closeModal();renderAll()}
+function deleteClient(id){if(!confirm('Delete this client? Their schedule records will remain but no longer resolve by name.'))return;state.clients=state.clients.filter(c=>c.id!==id);logEvent('Deleted client');markChanged();closeModal();renderAll()}
+function addWaitModal(){if(!requireUser())return;openModal(`<div class="modal-head">Add to waiting list <button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><label class="field">Existing client<select id="wclient"><option value="">— new person —</option>${clientOptions()}</select></label><div id="newPerson"><div class="row"><label class="field">Name<input id="wname"></label><label class="field">Phone<input id="wphone"></label></div></div><div class="row"><label class="field">Purpose<select id="wkind"><option value="permanent">Permanent weekly slot</option><option value="temporary">Temporary / replacement lessons</option><option value="either">Either</option></select></label><label class="field">Duration<select id="wdur"><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="either">Either</option></select></label></div><div><div class="muted" style="margin-bottom:6px">Preferred days</div><div class="check-grid">${DOW_FULL.slice(1).map((d,i)=>`<label class="check"><input type="checkbox" class="wday" value="${i+1}"> ${d}</label>`).join('')}</div></div><div class="row"><label class="field">Earliest<input type="time" id="wfrom" value="17:00" step="1800"></label><label class="field">Latest<input type="time" id="wto" value="21:00" step="1800"></label><label class="field">Priority<select id="wpriority"><option value="normal">Normal</option><option value="high">High</option></select></label></div><label class="field">Coach preference<input id="wcoach" value="${esc(state.coach.name)}"></label><label class="field">Notes<textarea id="wnote" rows="2" placeholder="Anything reception should know"></textarea></label></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveWait()">Add</button></div>`);document.getElementById('wclient').onchange=e=>document.getElementById('newPerson').style.display=e.target.value?'none':'block'}
+function saveWait(){const cid=document.getElementById('wclient').value;let name='',phone='';if(cid){name=clientName(cid);phone=client(cid)?.phone||''}else{name=document.getElementById('wname').value.trim();phone=document.getElementById('wphone').value.trim()}if(!name){toast('Name required');return}const days=[...document.querySelectorAll('.wday:checked')].map(x=>+x.value);state.waitlist.push({id:uid(),clientId:cid||null,name:cid?'':name,phone,kind:document.getElementById('wkind').value,duration:document.getElementById('wdur').value,days,from:document.getElementById('wfrom').value,to:document.getElementById('wto').value,priority:document.getElementById('wpriority').value,coach:document.getElementById('wcoach').value.trim(),note:document.getElementById('wnote').value.trim(),ts:now(),status:'waiting',offers:[]});logEvent(`Added ${name} to waiting list`);markChanged();closeModal();renderAll();toast('Added locally')}
+function matchScore(w,slot){let score=0;const d=pd(slot.date).getDay(),t=slot.startMin;if(w.days?.length){if(w.days.includes(d))score+=50;else return -1}else score+=20;const from=hm(w.from||'00:00'),to=hm(w.to||'23:59');if(t>=from&&t<=to)score+=35;else if(Math.abs(t-from)<=60||Math.abs(t-to)<=60)score+=10;else return -1;if(w.duration==='either'||+w.duration===slot.durationMin)score+=10;else return -1;if(w.coach&&w.coach.toLowerCase()===state.coach.name.toLowerCase())score+=5;return score}
+function getTemporaryOpenings(limit=20){const out=[];const from=startOfWeek(new Date());for(let i=0;i<21;i++){const d=addDays(from,i),date=ds(d);if(!state.coach.days.includes(d.getDay()))continue;state.regulars.filter(r=>r.weekday===d.getDay()&&date>=r.startDate&&(!r.endDate||date<=r.endDate)&&isHoliday(r.clientId,date)).forEach(r=>{const slot={date,startMin:r.startMin,durationMin:r.durationMin,clientId:r.clientId};if(overlaps(date,slot.startMin,slot.durationMin,{kind:'regular',regularId:r.id,date}))return;const matches=state.waitlist.filter(w=>['waiting','offered'].includes(w.status)&&w.kind!=='permanent').map(w=>({w,score:matchScore(w,slot)})).filter(x=>x.score>=0).sort((a,b)=>b.score-a.score);if(matches.length)out.push({...slot,matches})})}return out.slice(0,limit)}
+function getPermanentOpenings(limit=20){const out=[];const from=startOfWeek(new Date());for(let i=0;i<21;i++){const d=addDays(from,i),date=ds(d);if(!state.coach.days.includes(d.getDay()))continue;openRuns(date,60).forEach(r=>{const slot={date,startMin:r.start,durationMin:Math.min(r.duration,90)};const matches=state.waitlist.filter(w=>['waiting','offered'].includes(w.status)&&w.kind!=='temporary').map(w=>({w,score:matchScore(w,slot)})).filter(x=>x.score>=0).sort((a,b)=>b.score-a.score);if(matches.length)out.push({...slot,matches})})}return out.slice(0,limit)}
+function getOpenings(limit=20){return getTemporaryOpenings(limit)}
+function offerModal(waitId,date,start,dur){const w=state.waitlist.find(x=>x.id===waitId);if(!w)return;const slot={date,startMin:start,durationMin:dur};w.offers=w.offers||[];w.offers.push({id:uid(),date,startMin:start,durationMin:dur,status:'pending',offeredBy:state.currentUser,ts:now()});w.status='offered';logEvent(`Offered ${waitName(w)} ${date} ${fmtTime(start)}`);markChanged();renderAll();toast(`Offer recorded for ${waitName(w)} — follow up with the player`)}
+function renderWaitlist(){const list=state.waitlist.filter(w=>{const f=document.getElementById('waitFilter')?.value||'all';if(f==='regular')return w.kind==='permanent'||w.kind==='either';if(f==='temporary')return w.kind==='temporary'||w.kind==='either';if(f==='offers')return w.status==='offered';return w.status!=='booked'});const sort=document.getElementById('waitSort')?.value||'queue';if(sort==='match'){const opening=getOpenings(1)[0];list.sort((a,b)=>matchScore(b,opening||{date:ds(new Date()),startMin:0,durationMin:60})-matchScore(a,opening||{date:ds(new Date()),startMin:0,durationMin:60}))}else list.sort((a,b)=>(a.ts||'').localeCompare(b.ts||''));const tb=document.getElementById('waitRows');tb.innerHTML=list.length?list.map(w=>{const avail=w.days?.length?w.days.map(d=>DOW[d]).join(', '):'Any day';const offer=w.offers?.find(o=>o.status==='pending');return `<tr><td><b style="color:var(--blue)">${esc(waitName(w))}</b><br><span class="small">${esc(w.phone||'')}</span></td><td><span class="badge ${w.kind==='permanent'?'blue':'grey'}">${w.kind==='permanent'?'Permanent':w.kind==='temporary'?'Temporary':'Either'}</span><br><span class="small">${w.duration==='either'?'1h / 1.5h':w.duration+' min'}</span></td><td><span class="small">${avail}<br>${esc(w.from||'')}–${esc(w.to||'')}</span></td><td>${w.status==='offered'?'<span class="badge amber">Offer pending</span>':'<span class="badge green">Waiting</span>'}${w.priority==='high'?'<br><span class="priority high">High priority</span>':''}${offer?`<br><span class="small">${offer.date} ${fmtTime(offer.startMin)}</span>`:''}</td><td class="actions"><button class="btn sm" onclick="viewWait('${w.id}')">Open</button><button class="btn ghost sm" onclick="removeWait('${w.id}')">Remove</button></td></tr>`}).join(''):`<tr><td colspan="5"><div class="empty">No people match this filter.</div></td></tr>`;document.getElementById('waitBadge').textContent=state.waitlist.filter(w=>w.status!=='booked').length?`(${state.waitlist.filter(w=>w.status!=='booked').length})`:'';renderOpenings()}
+function renderOpenings(){
+ const wrap=document.getElementById('waitOpenings'),open=getTemporaryOpenings(),permanent=getPermanentOpenings();
+ let html='';
+ if(open.length){
+  html+=open.map(s=>{
+   const matches=s.matches.slice(0,3).map((m,j)=>`<div class="match-row"><div><b>${j+1}. ${esc(waitName(m.w))}</b><br><span class="small">${esc(m.w.from||'')}–${esc(m.w.to||'')} · ${esc(m.w.priority||'normal')} priority</span></div><div><span class="match-score">${m.score}</span><br><button class="btn sm" onclick="offerModal('${m.w.id}','${s.date}',${s.startMin},${s.durationMin})">Offer</button></div></div>`).join('');
+   return `<div class="slot-card"><strong>${pd(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})} · ${fmtTime(s.startMin)}–${fmtTime(s.startMin+s.durationMin)}</strong>${matches}</div>`;
   }).join('');
-  document.getElementById('availList').innerHTML=out||'<div class="empty-state">No working days in view.</div>';
-}
-
-let dragData=null;
-function handleDrop(dateStr,min){
-  if(!dragData)return;
-  if(!requireUser())return;
-  const it=dragData;dragData=null;
-  if(overlaps(dateStr,min,it.durationMin,it)){toast('That slot is already taken');return;}
-  const who=clientName(it.clientId);
-  if(it.kind==='regular'){
-    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:dateStr,newStartMin:min,newDurationMin:it.durationMin});
-    logEvent(`Moved ${who}'s lesson from ${it.date} ${fmtTime(it.startMin)} to ${dateStr} ${fmtTime(min)} (this week only)`);
-  }else if(it.kind==='moved'){
-    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
-    if(ex){ex.newDate=dateStr;ex.newStartMin=min;}
-    logEvent(`Re-moved ${who}'s lesson to ${dateStr} ${fmtTime(min)}`);
-  }else{
-    const o=state.oneoffs.find(x=>x.id===it.oneoffId);
-    if(o){o.date=dateStr;o.startMin=min;}
-    logEvent(`Moved ${who}'s one-off lesson to ${dateStr} ${fmtTime(min)}`);
-  }
-  save();renderSchedule();toast('Lesson moved');
-}
-
-/* ========================================================
-   MODALS
-   ======================================================== */
-const overlay=document.getElementById('overlay');
-function openModal(html){document.getElementById('modal').innerHTML=html;overlay.classList.add('open');}
-function closeModal(){overlay.classList.remove('open');}
-overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
-
-function requireUser(){
-  if(!state.currentUser){toast('Pick who you are first (top right)');return false;}
-  return true;
-}
-
-function clientOptions(sel){
-  return state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name))
-    .map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${c.name}${c.type==='casual'?' (casual)':''}</option>`).join('');
-}
-
-let prefill=null; // {clientId, waitId} when booking someone off the waiting list
-
-function openAddModal(dateStr,min){
-  if(!requireUser())return;
-  if(!state.clients.length){toast('Add a client first');switchTab('clients');return;}
-  const season=seasonForDate(dateStr);
-  const pre=prefill;
-  openModal(`
-    <div class="modal-head">Book a lesson<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint">${pd(dateStr).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})} · ${fmtTime(min)}</div>
-      ${pre?`<div class="hint" style="color:var(--mple)">From the waiting list — booking ${clientName(pre.clientId)}</div>`:''}
-      <label class="field">Client<select id="m_client">${clientOptions(pre?pre.clientId:'')}</select></label>
-      <div class="row">
-        <label class="field">Duration<select id="m_dur"><option value="60">1 hour</option><option value="90">1.5 hours</option></select></label>
-        <label class="field">Start<input type="time" id="m_start" value="${fmtTime(min)}" step="1800"></label>
-      </div>
-      <label class="chk"><input type="checkbox" id="m_repeat"> Repeat every ${DOW_FULL[pd(dateStr).getDay()]} · ${season} schedule</label>
-      <label class="field">Note (optional)<input type="text" id="m_note" placeholder="e.g. booked by phone"></label>
-    </div>
-    <div class="modal-foot">
-      <button class="btn ghost sm" onclick="prefill=null;closeModal()">Cancel</button>
-      <button class="btn" onclick="confirmAdd('${dateStr}')">Book lesson</button>
-    </div>`);
-}
-function confirmAdd(dateStr){
-  const cid=document.getElementById('m_client').value;
-  const dur=parseInt(document.getElementById('m_dur').value,10);
-  const[h,m]=document.getElementById('m_start').value.split(':').map(Number);
-  const start=h*60+m;
-  const repeat=document.getElementById('m_repeat').checked;
-  const note=document.getElementById('m_note').value.trim();
-  if(start<openMin()||start+dur>state.coach.close*60){toast('Outside working hours');return;}
-  if(overlaps(dateStr,start,dur)){toast('That slot is already taken');return;}
-  const who=clientName(cid);
-  const season=seasonForDate(dateStr);
-  if(repeat){
-    state.regulars.push({id:uid(),clientId:cid,weekday:pd(dateStr).getDay(),startMin:start,durationMin:dur,startDate:dateStr,endDate:null,season});
-    logEvent(`Added ${who} as a regular every ${DOW_FULL[pd(dateStr).getDay()]} at ${fmtTime(start)} (${season})`);
-  }else{
-    state.oneoffs.push({id:uid(),clientId:cid,date:dateStr,startMin:start,durationMin:dur,note});
-    logEvent(`Booked ${who} on ${dateStr} at ${fmtTime(start)}`);
-  }
-  // if booked off the waiting list, take them off it
-  if(prefill&&prefill.clientId===cid&&prefill.waitId){
-    state.waitlist=state.waitlist.filter(w=>w.id!==prefill.waitId);
-    logEvent(`Removed ${who} from the waiting list (now booked)`);
-  }
-  prefill=null;
-  save();closeModal();renderSchedule();renderWaitlist();toast('Lesson booked');
-}
-
-/* ---------- waiting list ---------- */
-function renderWaitlist(){
-  const tb=document.getElementById('waitRows');if(!tb)return;
-  const list=state.waitlist||[];
-  if(!list.length){
-    tb.innerHTML=`<tr><td colspan="5"><div class="empty-state">No one waiting. Add someone when the coach has no free slot.</div></td></tr>`;
-  }else{
-    tb.innerHTML=list.slice().sort((a,b)=>(a.ts||'').localeCompare(b.ts||'')).map(w=>{
-      const nm=w.clientId?clientName(w.clientId):(w.name||'—');
-      const linked=w.clientId?' <span class="pill" style="background:var(--shell);color:var(--mple)">client</span>':'';
-      return `<tr>
-        <td><b style="color:var(--mple)">${escapeHtml(nm)}</b>${linked}</td>
-        <td>${w.phone?escapeHtml(w.phone):'<span class="muted">—</span>'}</td>
-        <td>${w.pref?escapeHtml(w.pref):'<span class="muted">—</span>'}</td>
-        <td class="muted">${w.ts?fmtStamp(w.ts):''}</td>
-        <td style="white-space:nowrap">
-          ${w.clientId?`<button class="btn sm" onclick="bookFromWait('${w.id}')">Book</button>`:''}
-          <button class="btn ghost sm" onclick="removeWait('${w.id}')">Remove</button>
-        </td>
-      </tr>`;
-    }).join('');
-  }
-  const badge=document.getElementById('waitBadge');
-  if(badge)badge.textContent=list.length?`(${list.length})`:'';
-}
-function openAddWaitModal(){
-  if(!requireUser())return;
-  openModal(`
-    <div class="modal-head">Add to waiting list<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <label class="field">Existing client
-        <select id="w_client"><option value="">— someone new —</option>${clientOptions('')}</select>
-      </label>
-      <div id="w_newWrap">
-        <div class="row">
-          <label class="field">Name<input type="text" id="w_name" placeholder="Their name"></label>
-          <label class="field">Phone<input type="tel" id="w_phone" placeholder="Optional"></label>
-        </div>
-      </div>
-      <label class="field">What they want<input type="text" id="w_pref" placeholder="e.g. weekday evenings, any Saturday morning"></label>
-    </div>
-    <div class="modal-foot">
-      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
-      <button class="btn" onclick="saveWait()">Add</button>
-    </div>`);
-  const sel=document.getElementById('w_client');
-  const sync=()=>{document.getElementById('w_newWrap').style.display=sel.value?'none':'block';};
-  sel.addEventListener('change',sync);sync();
-}
-function saveWait(){
-  if(!requireUser())return;
-  const cid=document.getElementById('w_client').value;
-  const pref=document.getElementById('w_pref').value.trim();
-  const entry={id:uid(),ts:now(),pref};
-  if(cid){entry.clientId=cid;const c=client(cid);entry.phone=c?c.phone||'':'';}
-  else{
-    const name=document.getElementById('w_name').value.trim();
-    if(!name){toast('Add a name or pick a client');return;}
-    entry.name=name;entry.phone=document.getElementById('w_phone').value.trim();
-  }
-  state.waitlist.push(entry);
-  logEvent(`Added ${entry.clientId?clientName(entry.clientId):entry.name} to the waiting list`);
-  save();closeModal();renderWaitlist();toast('Added to waiting list');
-}
-function removeWait(id){
-  const w=state.waitlist.find(x=>x.id===id);
-  state.waitlist=state.waitlist.filter(x=>x.id!==id);
-  logEvent(`Removed ${w?(w.clientId?clientName(w.clientId):w.name):''} from the waiting list`);
-  save();renderWaitlist();
-}
-function bookFromWait(id){
-  const w=state.waitlist.find(x=>x.id===id);if(!w||!w.clientId)return;
-  prefill={clientId:w.clientId,waitId:w.id};
-  switchTab('schedule');
-  toast('Pick an open slot for '+clientName(w.clientId));
-}
-
-function openBookingModal(it){
-  const who=clientName(it.clientId);
-  const typeLabel=it.kind==='regular'?'Regular weekly slot':(it.kind==='moved'?'Moved (this week)':'One-off');
-  openModal(`
-    <div class="modal-head">${who}<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint">${typeLabel} · ${pd(it.date).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</div>
-      <div class="row">
-        <label class="field">New date<input type="date" id="e_date" value="${it.date}"></label>
-      </div>
-      <div class="row">
-        <label class="field">Start<input type="time" id="e_start" value="${fmtTime(it.startMin)}" step="1800"></label>
-        <label class="field">Duration<select id="e_dur"><option value="60" ${it.durationMin===60?'selected':''}>1 hour</option><option value="90" ${it.durationMin===90?'selected':''}>1.5 hours</option></select></label>
-      </div>
-      ${it.kind==='regular'?'<div class="hint">Changes here apply to this week only. To change the standing slot for every week, edit it under Clients.</div>':''}
-    </div>
-    <div class="modal-foot">
-      <button class="danger btn sm" onclick='cancelOccurrence(${JSON.stringify(it)})'>${it.kind==='oneoff'?'Delete':'Cancel this occurrence'}</button>
-      <div style="flex:1"></div>
-      <button class="btn ghost sm" onclick="closeModal()">Close</button>
-      <button class="btn" onclick='applyOccurrence(${JSON.stringify(it)})'>Save changes</button>
-    </div>`);
-}
-function applyOccurrence(it){
-  if(!requireUser())return;
-  const nd=document.getElementById('e_date').value;
-  const[h,m]=document.getElementById('e_start').value.split(':').map(Number);
-  const start=h*60+m;
-  const dur=parseInt(document.getElementById('e_dur').value,10);
-  if(start<openMin()||start+dur>state.coach.close*60){toast('Outside working hours');return;}
-  if(overlaps(nd,start,dur,it)){toast('That slot is already taken');return;}
-  const who=clientName(it.clientId);
-  if(it.kind==='regular'){
-    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'move',newDate:nd,newStartMin:start,newDurationMin:dur});
-  }else if(it.kind==='moved'){
-    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
-    if(ex){ex.newDate=nd;ex.newStartMin=start;ex.newDurationMin=dur;}
-  }else{
-    const o=state.oneoffs.find(x=>x.id===it.oneoffId);
-    if(o){o.date=nd;o.startMin=start;o.durationMin=dur;}
-  }
-  logEvent(`Updated ${who}'s lesson → ${nd} ${fmtTime(start)} (${dur} min)`);
-  save();closeModal();renderSchedule();toast('Saved');
-}
-function cancelOccurrence(it){
-  if(!requireUser())return;
-  const who=clientName(it.clientId);
-  if(it.kind==='regular'){
-    state.exceptions.push({id:uid(),regularId:it.regularId,originalDate:it.date,type:'cancel'});
-    logEvent(`Cancelled ${who}'s lesson on ${it.date} (this week)`);
-  }else if(it.kind==='moved'){
-    const ex=state.exceptions.find(e=>e.id===it.exceptionId);
-    if(ex)ex.type='cancel'; // keep originalDate so it stays suppressed
-    logEvent(`Cancelled ${who}'s moved lesson`);
-  }else{
-    state.oneoffs=state.oneoffs.filter(o=>o.id!==it.oneoffId);
-    logEvent(`Deleted ${who}'s one-off lesson on ${it.date}`);
-  }
-  save();closeModal();renderSchedule();toast('Removed');
-}
-
-/* ---------- breaks ---------- */
-function openBreakModal(it){
-  // edit existing break
-  const b=(state.breaks||[]).find(x=>x.id===it.breakId);if(!b)return;
-  openModal(`
-    <div class="modal-head">Break<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint">${b.recurring?('Every '+DOW_FULL[b.weekday]):pd(b.date).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</div>
-      <label class="field">Label<input type="text" id="bk_label" value="${escapeHtml(b.label||'Break')}"></label>
-      <div class="row">
-        <label class="field">Start<input type="time" id="bk_start" value="${fmtTime(b.startMin)}" step="1800"></label>
-        <label class="field">End<input type="time" id="bk_end" value="${fmtTime(b.startMin+b.durationMin)}" step="1800"></label>
-      </div>
-      <label class="field">Applies in<select id="bk_season">
-        <option value="" ${!b.season?'selected':''}>Both seasons</option>
-        <option value="summer" ${b.season==='summer'?'selected':''}>Summer only</option>
-        <option value="winter" ${b.season==='winter'?'selected':''}>Winter only</option>
-      </select></label>
-    </div>
-    <div class="modal-foot">
-      <button class="danger btn sm" onclick="deleteBreak('${b.id}')">Delete break</button>
-      <div style="flex:1"></div>
-      <button class="btn ghost sm" onclick="closeModal()">Close</button>
-      <button class="btn" onclick="saveBreakEdit('${b.id}')">Save</button>
-    </div>`);
-}
-function hmToMin(v){const[h,m]=v.split(':').map(Number);return h*60+m;}
-function readBreakTimes(){
-  const s=document.getElementById('bk_start').value, e=document.getElementById('bk_end').value;
-  if(!s||!e){toast('Set a start and end');return null;}
-  let start=Math.round(hmToMin(s)/30)*30, end=Math.round(hmToMin(e)/30)*30;
-  if(end<=start){toast('End must be after start');return null;}
-  if(start<openMin()||end>state.coach.close*60){toast('Break must sit inside the working hours');return null;}
-  return {start,dur:end-start};
-}
-function saveBreakEdit(id){
-  if(!requireUser())return;
-  const b=state.breaks.find(x=>x.id===id);if(!b)return;
-  const t=readBreakTimes();if(!t)return;
-  b.startMin=t.start;b.durationMin=t.dur;
-  b.label=document.getElementById('bk_label').value.trim()||'Break';
-  const bs=document.getElementById('bk_season').value;
-  if(bs)b.season=bs; else delete b.season;
-  logEvent(`Updated break "${b.label}" (${fmtTime(t.start)}–${fmtTime(t.start+t.dur)})`);
-  save();closeModal();renderSchedule();toast('Saved');
-}
-function deleteBreak(id){
-  const b=state.breaks.find(x=>x.id===id);
-  state.breaks=state.breaks.filter(x=>x.id!==id);
-  logEvent(`Removed break "${b?b.label:''}"`);
-  save();closeModal();renderSchedule();toast('Break removed');
-}
-function openAddBreakModal(){
-  if(!requireUser())return;
-  const def=ds(cursor);
-  openModal(`
-    <div class="modal-head">Add a break<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint">Block the coach's lunch or rest time so nothing can be booked over it.</div>
-      <label class="field">Label<input type="text" id="bk_label" value="Lunch" placeholder="e.g. Lunch, Admin"></label>
-      <div class="row">
-        <label class="field">Start<input type="time" id="bk_start" value="13:00" step="1800"></label>
-        <label class="field">End<input type="time" id="bk_end" value="14:00" step="1800"></label>
-      </div>
-      <label class="field">Repeat
-        <select id="bk_repeat">
-          <option value="daily">Every working day</option>
-          <option value="weekly">Every week on one day</option>
-          <option value="once">Just this date</option>
-        </select>
-      </label>
-      <label class="field">Applies in<select id="bk_season">
-        <option value="">Both seasons</option>
-        <option value="summer">Summer only</option>
-        <option value="winter">Winter only</option>
-      </select></label>
-      <div class="row">
-        <label class="field" id="bk_dayWrap" style="display:none">Day<select id="bk_day">${DOW.map((d,i)=>`<option value="${i}" ${i===pd(def).getDay()?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
-        <label class="field" id="bk_dateWrap" style="display:none">Date<input type="date" id="bk_date" value="${def}"></label>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
-      <button class="btn bronze" onclick="confirmBreak()">Add break</button>
-    </div>`);
-  const rep=document.getElementById('bk_repeat');
-  const sync=()=>{
-    document.getElementById('bk_dayWrap').style.display=rep.value==='weekly'?'flex':'none';
-    document.getElementById('bk_dateWrap').style.display=rep.value==='once'?'flex':'none';
-  };
-  rep.addEventListener('change',sync);sync();
-}
-function confirmBreak(){
-  if(!requireUser())return;
-  const label=document.getElementById('bk_label').value.trim()||'Break';
-  const t=readBreakTimes();if(!t)return;
-  const start=t.start, dur=t.dur;
-  const rep=document.getElementById('bk_repeat').value;
-  const ssn=document.getElementById('bk_season').value||undefined;
-  const base=ds(new Date());
-  const mk=extra=>Object.assign({id:uid(),startMin:start,durationMin:dur,label},ssn?{season:ssn}:{},extra);
-  if(rep==='daily'){
-    state.coach.days.forEach(wd=>state.breaks.push(mk({recurring:true,weekday:wd,startDate:base,endDate:null})));
-    logEvent(`Added daily break "${label}" at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
-  }else if(rep==='weekly'){
-    const wd=parseInt(document.getElementById('bk_day').value,10);
-    state.breaks.push(mk({recurring:true,weekday:wd,startDate:base,endDate:null}));
-    logEvent(`Added weekly break "${label}" on ${DOW_FULL[wd]} at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
-  }else{
-    const date=document.getElementById('bk_date').value;
-    state.breaks.push(mk({recurring:false,date}));
-    logEvent(`Added break "${label}" on ${date} at ${fmtTime(start)}${ssn?' ('+ssn+')':''}`);
-  }
-  save();closeModal();renderSchedule();toast('Break added');
-}
-function renderClients(){
-  const tb=document.getElementById('clientRows');
-  if(!state.clients.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty-state">No clients yet. Add the coach's regulars to get started.</div></td></tr>`;return;}
-  tb.innerHTML=state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{
-    const slots=state.regulars.filter(r=>r.clientId===c.id);
-    const hols=state.holidays.filter(h=>h.clientId===c.id);
-    return `<tr>
-      <td><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${c.color||'#003087'};margin-right:7px;vertical-align:middle"></span><b style="color:var(--mple)">${c.name}</b></td>
-      <td><span class="pill ${c.type}">${c.type==='casual'?'Casual':'Regular'}</span></td>
-      <td>${c.phone||'<span class="muted">—</span>'}</td>
-      <td>${slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)} <span class="muted">(${s.durationMin}m${s.season?', '+s.season:''})</span>`).join('<br>'):'<span class="muted">—</span>'}</td>
-      <td>${hols.length?hols.map(h=>`<span class="pill away">${h.start} → ${h.end}</span>`).join(' '):'<span class="muted">—</span>'}</td>
-      <td style="white-space:nowrap">
-        <button class="btn sm" onclick="openShareModal('${c.id}')">Share</button>
-        <button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button>
-        <button class="btn bronze sm" onclick="addHoliday('${c.id}')">Holiday</button>
-      </td>
-    </tr>`;
+ }else html+='<div class="empty">No suitable temporary openings found in the next 3 weeks.</div>';
+ if(permanent.length){
+  html+='<h3 style="margin-top:16px">Permanent-slot matches</h3>';
+  html+=permanent.slice(0,5).map(s=>{
+   const matches=s.matches.slice(0,3).map(m=>`<div class="match-row"><div><b>${esc(waitName(m.w))}</b></div><div><span class="match-score">${m.score}</span></div></div>`).join('');
+   return `<div class="slot-card"><strong>${pd(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})} · ${fmtTime(s.startMin)}–${fmtTime(s.startMin+s.durationMin)}</strong>${matches}</div>`;
   }).join('');
+ }
+ wrap.innerHTML=html;
 }
+function acceptOffer(waitId,offerId){const w=state.waitlist.find(x=>x.id===waitId),o=w?.offers?.find(x=>x.id===offerId);if(!w||!o)return;o.status='accepted';w.status='waiting';prefill={clientId:w.clientId,waitId:w.id};cursor=view==='week'?startOfWeek(pd(o.date)):pd(o.date);view='day';switchTab('schedule');setTimeout(()=>addBookingModal(o.date,o.startMin),0);logEvent(`Accepted ${waitName(w)}'s offer for ${o.date} ${fmtTime(o.startMin)}`);markChanged()}
+function declineOffer(waitId,offerId){const w=state.waitlist.find(x=>x.id===waitId),o=w?.offers?.find(x=>x.id===offerId);if(!w||!o)return;o.status='declined';w.status='waiting';logEvent(`Declined offer for ${waitName(w)}: ${o.date} ${fmtTime(o.startMin)}`);markChanged();renderAll()}
+function viewWait(id){const w=state.waitlist.find(x=>x.id===id);if(!w)return;openModal(`<div class="modal-head">${esc(waitName(w))}<button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="cards"><div class="stat-card"><div class="stat">${w.days?.length||'Any'}</div><div class="stat-label">Preferred days</div></div><div class="stat-card"><div class="stat">${esc(w.from||'')}–${esc(w.to||'')}</div><div class="stat-label">Time window</div></div></div><div><span class="badge ${w.status==='offered'?'amber':'green'}">${w.status}</span> <span class="badge grey">${w.kind}</span> ${w.priority==='high'?'<span class="badge red">High priority</span>':''}</div><p class="muted">${esc(w.note||'No notes')}</p><h3>Offer history</h3><div>${(w.offers||[]).map(o=>`<div class="list-row"><div><b>${o.date} · ${fmtTime(o.startMin)}–${fmtTime(o.startMin+o.durationMin)}</b><br><span class="small">${o.offeredBy} · ${fmtStamp(o.ts)}</span></div><div class="actions"><span class="badge ${o.status==='pending'?'amber':o.status==='accepted'?'green':'red'}">${o.status}</span>${o.status==='pending'?`<button class="btn sm" onclick="acceptOffer('${w.id}','${o.id}')">Accept & book</button><button class="btn ghost sm" onclick="declineOffer('${w.id}','${o.id}')">Decline</button>`:''}</div></div>`).join('')||'<div class="small">No offers yet.</div>'}</div></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Close</button></div>`)}
+function removeWait(id){const w=state.waitlist.find(x=>x.id===id);state.waitlist=state.waitlist.filter(x=>x.id!==id);logEvent(`Removed ${waitName(w)} from waiting list`);markChanged();renderAll()}
+function renderClients(){document.getElementById('clientRows').innerHTML=state.clients.length?state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{const regs=state.regulars.filter(r=>r.clientId===c.id);const hol=state.holidays.filter(h=>h.clientId===c.id&&h.end>=ds(new Date())).sort((a,b)=>a.start.localeCompare(b.start))[0];return `<tr><td><b style="color:var(--blue)">${esc(c.name)}</b></td><td><span class="badge ${c.type==='casual'?'grey':'blue'}">${c.type}</span></td><td>${esc(c.phone||'—')}</td><td>${regs.length?regs.map(r=>`${DOW[r.weekday]} ${fmtTime(r.startMin)}`).join('<br>'):'—'}</td><td>${hol?`${hol.start} → ${hol.end}`:'—'}</td><td class="actions"><button class="btn ghost sm" onclick="editClient('${c.id}')">Edit</button><button class="btn sm" onclick="holidayModal('${c.id}')">Holiday</button></td></tr>`}).join(''):`<tr><td colspan="6"><div class="empty">No clients.</div></td></tr>`}
+function holidayModal(cid){openModal(`<div class="modal-head">Add holiday · ${esc(clientName(cid))}<button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="row"><label class="field">From<input type="date" id="hfrom"></label><label class="field">To<input type="date" id="hto"></label></div><div class="hint">The regular player's recurring lessons disappear for these dates and become temporary openings for the waiting list.</div></div><div class="modal-foot"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveHoliday('${cid}')">Add holiday</button></div>`)}
+function saveHoliday(cid){const a=document.getElementById('hfrom').value,b=document.getElementById('hto').value;if(!a||!b||b<a){toast('Set a valid date range');return}state.holidays.push({id:uid(),clientId:cid,start:a,end:b});logEvent(`${clientName(cid)} holiday ${a} → ${b}`);markChanged();closeModal();renderAll();toast('Holiday added locally')}
+function renderDashboard(){const activeWait=state.waitlist.filter(w=>w.status!=='booked'),pending=state.waitlist.filter(w=>w.status==='offered'),open=getTemporaryOpenings(),permanent=getPermanentOpenings(),today=ds(new Date());const todayOpen=openRuns(today,60).length;document.getElementById('statCards').innerHTML=[[''+activeWait.length,'Waiting'],[''+pending.length,'Offers pending'],[''+open.length,'Matched openings'],[''+todayOpen,'Open slots today']].map(x=>`<div class="stat-card"><div class="stat">${x[0]}</div><div class="stat-label">${x[1]}</div></div>`).join('');const attention=[];pending.forEach(w=>attention.push({html:`<b>${esc(waitName(w))}</b> has an offer awaiting response.<br><span class="small">Check ${esc((w.offers||[]).find(o=>o.status==='pending')?.date||'offer')}</span>`,action:`viewWait('${w.id}')`}));state.holidays.filter(h=>h.end>=today&&h.start<=ds(addDays(new Date(),21))).forEach(h=>attention.push({html:`<b>${esc(clientName(h.clientId))}</b> is away ${h.start} → ${h.end}.<br><span class="small">Their regular slot may be offered temporarily.</span>`,action:null}));document.getElementById('attentionList').innerHTML=attention.length?attention.slice(0,8).map(a=>`<div class="list-row"><div class="list-main">${a.html}</div>${a.action?`<button class="btn ghost sm" onclick="${a.action}">Open</button>`:''}</div>`).join(''):'<div class="empty">Nothing needs attention.</div>';document.getElementById('tempSlots').innerHTML=open.slice(0,6).map(s=>`<div class="slot-card"><strong>${pd(s.date).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})} · ${fmtTime(s.startMin)}–${fmtTime(s.startMin+s.durationMin)}</strong><br><span class="small">${s.matches.length} matching player${s.matches.length===1?'':'s'}</span></div>`).join('')||'<div class="empty">No matched temporary openings.</div>';document.getElementById('recentActivity').innerHTML=state.log.slice(0,6).map(e=>`<div class="list-row"><div><b>${esc(e.author)}</b> · ${esc(e.text)}</div><span class="small">${fmtStamp(e.ts)}</span></div>`).join('')||'<div class="empty">No activity yet.</div>'}
+function renderNotes(){const n=state.notes;document.getElementById('noteList').innerHTML=n.length?n.map(x=>`<div class="panel" style="border-left:3px solid ${x.read?'var(--bronze)':'var(--blue)'}"><div style="display:flex;justify-content:space-between;gap:8px"><b style="color:var(--blue)">${esc(x.author)}</b><span class="small">${fmtStamp(x.ts)}</span></div><div style="margin-top:6px">${esc(x.text)}</div><div style="text-align:right;margin-top:6px"><button class="btn ghost sm" onclick="toggleNote('${x.id}')">${x.read?'Mark unread':'Mark read'}</button><button class="btn ghost sm" onclick="deleteNote('${x.id}')">Delete</button></div></div>`).join(''):'<div class="empty">No staff notes.</div>';document.getElementById('noteBadge').textContent=n.filter(x=>!x.read).length?`(${n.filter(x=>!x.read).length})`:''}
+function addNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;state.notes.unshift({id:uid(),author:state.currentUser,ts:now(),text:t,read:false});document.getElementById('noteText').value='';logEvent('Posted a staff note');markChanged();renderAll()}
+function toggleNote(id){const n=state.notes.find(x=>x.id===id);if(n)n.read=!n.read;markChanged();renderAll()}function deleteNote(id){state.notes=state.notes.filter(x=>x.id!==id);markChanged();renderAll()}
+function renderLog(){document.getElementById('logList').innerHTML=state.log.length?state.log.map(e=>`<div class="list-row"><div><b style="color:var(--blue)">${esc(e.author)}</b> · ${esc(e.text)}</div><span class="small">${fmtStamp(e.ts)}</span></div>`).join(''):'<div class="empty">No activity.</div>'}
+function renderAnalytics(){const hours=(state.coach.close-state.coach.open)*state.coach.days.length,used=state.regulars.reduce((a,r)=>a+r.durationMin/60,0);document.getElementById('analyticsCards').innerHTML=[[(used).toFixed(1),'Regular hours/week'],[hours.toFixed(1),'Coach hours/week'],[hours?Math.round(used/hours*100)+'%':'0%','Regular utilisation'],[state.waitlist.filter(w=>w.status!=='booked').length,'Waiting demand']].map(x=>`<div class="stat-card"><div class="stat">${x[0]}</div><div class="stat-label">${x[1]}</div></div>`).join('');document.getElementById('analyticRows').innerHTML=state.clients.map(c=>{const r=state.regulars.filter(x=>x.clientId===c.id);const h=r.reduce((a,x)=>a+x.durationMin/60,0);return `<tr><td><b>${esc(c.name)}</b></td><td>${c.type}</td><td>${h.toFixed(1)}</td><td>${r.length}</td><td>${r.map(x=>`${DOW[x.weekday]} ${fmtTime(x.startMin)}`).join(', ')||'—'}</td></tr>`}).join('')}
+function renderSettings(){document.getElementById('setCoach').value=state.coach.name;const o=document.getElementById('setOpen'),c=document.getElementById('setClose');o.innerHTML=c.innerHTML='';for(let h=5;h<=22;h++)o.innerHTML+=`<option value="${h}" ${h===state.coach.open?'selected':''}>${fmtTime(h*60)}</option>`;for(let h=6;h<=23;h++)c.innerHTML+=`<option value="${h}" ${h===state.coach.close?'selected':''}>${fmtTime(h*60)}</option>`;document.getElementById('setDays').innerHTML=DOW.map((d,i)=>`<label class="check"><input type="checkbox" class="dchk" value="${i}" ${state.coach.days.includes(i)?'checked':''}> ${d}</label>`).join('');const summer=state.seasons.summerMonths||[];document.getElementById('seasonMonths').innerHTML=MONTHS.map((m,i)=>`<button class="btn sm" style="background:${summer.includes(i+1)?'#B8862A':'#2C4A6E'};border-color:transparent" onclick="toggleSeason(${i+1})">${m}</button>`).join('');document.getElementById('staffList').innerHTML=state.staff.map(s=>`<span class="badge grey">${esc(s)} <button style="border:0;background:none;color:var(--bronze)" onclick="removeStaff('${esc(s)}')">×</button></span>`).join('');document.getElementById('userSelect').innerHTML=state.staff.map(s=>`<option ${s===state.currentUser?'selected':''}>${esc(s)}</option>`).join('')}
+function saveSettings(){const open=+document.getElementById('setOpen').value,close=+document.getElementById('setClose').value;if(close<=open){toast('Close must be after open');return}state.coach.name=document.getElementById('setCoach').value.trim()||'Coach';state.coach.open=open;state.coach.close=close;state.coach.days=[...document.querySelectorAll('.dchk:checked')].map(x=>+x.value);logEvent('Updated coach settings');markChanged();renderAll();toast('Settings saved locally')}
+function toggleSeason(m){const a=state.seasons.summerMonths,i=a.indexOf(m);if(i>=0)a.splice(i,1);else a.push(m);a.sort((x,y)=>x-y);markChanged();renderAll()}function addStaff(){const v=document.getElementById('newStaff').value.trim();if(!v||state.staff.includes(v))return;state.staff.push(v);document.getElementById('newStaff').value='';markChanged();renderSettings()}function removeStaff(s){if(state.staff.length<=1){toast('Keep at least one receptionist');return}state.staff=state.staff.filter(x=>x!==s);if(state.currentUser===s)state.currentUser=state.staff[0];markChanged();renderSettings()}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`racket-manager-${ds(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}function importData(f){const r=new FileReader();r.onload=()=>{try{state=Object.assign(defaultState(),JSON.parse(r.result));dirtyOps++;cache();renderAll();toast('Imported locally — sync when ready')}catch(e){toast('Invalid JSON file')}};r.readAsText(f)}
+function switchTab(t){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+t).classList.add('active');renderAll()}
+function renderAll(){renderDashboard();renderSchedule();renderWaitlist();renderClients();renderNotes();renderLog();renderAnalytics();renderSettings()}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove('show'),2300)}
 
-/* ---------- share a client's upcoming schedule ---------- */
-function clientLessons(cid,weeks){
-  const start=new Date();start.setHours(0,0,0,0);
-  const out=[];
-  for(let i=0;i<weeks*7;i++){
-    const dateStr=ds(addDays(start,i));
-    getInstances(dateStr).forEach(it=>{
-      if(it.kind==='break')return;
-      if(it.clientId!==cid)return;
-      out.push({date:dateStr,startMin:it.startMin,durationMin:it.durationMin});
-    });
-  }
-  return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.startMin-b.startMin);
-}
-function buildScheduleMessage(cid,weeks){
-  const c=client(cid);
-  const lessons=clientLessons(cid,weeks);
-  const name=c?c.name:'';
-  let msg=`Dear ${name},\n`;
-  msg+=`I hope you are well.\n`;
-  msg+=`We would like to confirm your upcoming tennis lessons with ${state.coach.name} on the following dates:\n\n`;
-  if(!lessons.length){
-    msg+=`(No lessons scheduled in this period.)\n`;
-  }else{
-    lessons.forEach(l=>{
-      msg+=`* ${pd(l.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}\n`;
-    });
-  }
-  msg+=`Please verify that these dates and times are convenient for you.\n`;
-  msg+=`We look forward to seeing you on court.\n`;
-  msg+=`Kind regards,\n`;
-  msg+=`Racket Club`;
-  return msg;
-}
-function buildICS(cid,weeks){
-  const c=client(cid);
-  const lessons=clientLessons(cid,weeks);
-  const dt=(dateStr,min)=>dateStr.replace(/-/g,'')+'T'+String(Math.floor(min/60)).padStart(2,'0')+String(min%60).padStart(2,'0')+'00';
-  const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
-  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Aphrodite Hills Racket Club//Scheduler//EN\r\nCALSCALE:GREGORIAN\r\n';
-  lessons.forEach((l,i)=>{
-    ics+='BEGIN:VEVENT\r\n';
-    ics+=`UID:${cid}-${l.date}-${l.startMin}-${i}@aphroditehills\r\n`;
-    ics+=`DTSTAMP:${stamp}\r\n`;
-    ics+=`DTSTART:${dt(l.date,l.startMin)}\r\n`;
-    ics+=`DTEND:${dt(l.date,l.startMin+l.durationMin)}\r\n`;
-    ics+=`SUMMARY:Tennis lesson — ${state.coach.name}\r\n`;
-    ics+='LOCATION:Aphrodite Hills Racket Club\r\n';
-    ics+='BEGIN:VALARM\r\nTRIGGER:-PT2H\r\nACTION:DISPLAY\r\nDESCRIPTION:Tennis lesson\r\nEND:VALARM\r\n';
-    ics+='END:VEVENT\r\n';
-  });
-  ics+='END:VCALENDAR\r\n';
-  return {ics,count:lessons.length,name:(c?c.name.replace(/[^a-z0-9]+/gi,'-'):'client')};
-}
-function openShareModal(cid){
-  const c=client(cid);if(!c)return;
-  const weeks=4;
-  openModal(`
-    <div class="modal-head">Share ${c.name}'s schedule<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <label class="field">Show the next
-        <select id="sh_weeks" onchange="refreshShare('${cid}')">
-          <option value="4" selected>4 weeks</option>
-          <option value="8">8 weeks</option>
-          <option value="12">12 weeks</option>
-        </select>
-      </label>
-      <div class="hint">This already skips their holidays and includes any moved lessons. Edit the text below if you like, then copy it into WhatsApp.</div>
-      <textarea id="sh_text" rows="11" style="font-size:12.5px;line-height:1.4">${escapeHtml(buildScheduleMessage(cid,weeks))}</textarea>
-    </div>
-    <div class="modal-foot">
-      <button class="btn ghost sm" onclick="closeModal()">Close</button>
-      <button class="btn bronze sm" onclick="downloadICS('${cid}')">Calendar file (.ics)</button>
-      <button class="btn" onclick="copyShare()">Copy message</button>
-    </div>`);
-}
-function refreshShare(cid){
-  const w=parseInt(document.getElementById('sh_weeks').value,10);
-  document.getElementById('sh_text').value=buildScheduleMessage(cid,w);
-}
-function copyShare(){
-  const t=document.getElementById('sh_text');
-  t.select();
-  navigator.clipboard.writeText(t.value).then(()=>toast('Copied — paste into WhatsApp')).catch(()=>{
-    try{document.execCommand('copy');toast('Copied');}catch(e){toast('Select the text and copy');}
-  });
-}
-function downloadICS(cid){
-  const w=parseInt(document.getElementById('sh_weeks').value,10);
-  const {ics,count,name}=buildICS(cid,w);
-  if(!count){toast('No lessons to export');return;}
-  const blob=new Blob([ics],{type:'text/calendar'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`${name}-lessons.ics`;a.click();
-  toast(`${count} lessons — send them the file`);
-}
-
-function editClient(id){
-  const c=id?client(id):null;
-  const slots=c?state.regulars.filter(r=>r.clientId===c.id):[];
-  openModal(`
-    <div class="modal-head">${c?'Edit client':'Add client'}<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <label class="field">Name<input type="text" id="c_name" value="${c?c.name:''}" placeholder="Full name"></label>
-      <div class="row">
-        <label class="field">Type<select id="c_type">
-          <option value="regular" ${c&&c.type==='regular'?'selected':''}>Regular</option>
-          <option value="casual" ${c&&c.type==='casual'?'selected':''}>Casual</option>
-        </select></label>
-        <label class="field">Phone<input type="tel" id="c_phone" value="${c?c.phone||'':''}" placeholder="Optional"></label>
-      </div>
-      <div>
-        <div class="muted" style="margin-bottom:6px">Colour on the schedule</div>
-        <div id="colorPick" style="display:flex;gap:7px;flex-wrap:wrap">
-          ${PALETTE.map(p=>`<button type="button" class="cswatch" data-color="${p}" style="width:26px;height:26px;border-radius:50%;background:${p};border:2px solid ${(c?c.color:nextColor())===p?'#1d1d1d':'transparent'};cursor:pointer"></button>`).join('')}
-        </div>
-      </div>
-      ${c?`<div class="hint">Weekly slots for ${c.name}:</div>
-        <div id="slotEdit">${slots.map(s=>slotRow(s)).join('')||'<div class="muted" style="font-size:12px">No standing slots. Add one below or book on the schedule and tick "repeat".</div>'}</div>
-        <button class="btn ghost sm" onclick="addSlotRow()">+ Add weekly slot</button>`:'<div class="hint">Save first, then add weekly slots or book on the schedule.</div>'}
-    </div>
-    <div class="modal-foot">
-      ${c?`<button class="danger btn sm" onclick="deleteClient('${c.id}')">Delete client</button>`:''}
-      <div style="flex:1"></div>
-      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
-      <button class="btn" onclick="saveClient('${id||''}')">Save</button>
-    </div>`);
-  selectedColor=c?c.color:nextColor();
-  document.querySelectorAll('#colorPick .cswatch').forEach(sw=>{
-    sw.addEventListener('click',()=>{
-      selectedColor=sw.dataset.color;
-      document.querySelectorAll('#colorPick .cswatch').forEach(x=>x.style.border='2px solid transparent');
-      sw.style.border='2px solid #1d1d1d';
-    });
-  });
-}
-let selectedColor=PALETTE[0];
-function slotRow(s){
-  const seas=s&&s.season?s.season:'';
-  return `<div class="row slot-row" data-id="${s?s.id:''}" style="margin-bottom:8px;align-items:flex-end">
-    <label class="field" style="flex:1.2">Day<select class="s_day">${DOW.map((d,i)=>`<option value="${i}" ${s&&s.weekday===i?'selected':''}>${DOW_FULL[i]}</option>`).join('')}</select></label>
-    <label class="field">Time<input type="time" class="s_time" value="${s?fmtTime(s.startMin):'17:00'}" step="1800"></label>
-    <label class="field">Length<select class="s_dur"><option value="60" ${s&&s.durationMin===60?'selected':''}>1h</option><option value="90" ${s&&s.durationMin===90?'selected':''}>1.5h</option></select></label>
-    <label class="field">Season<select class="s_season">
-      <option value="" ${seas===''?'selected':''}>Both</option>
-      <option value="summer" ${seas==='summer'?'selected':''}>Summer</option>
-      <option value="winter" ${seas==='winter'?'selected':''}>Winter</option>
-    </select></label>
-    <button class="btn ghost sm" style="flex:0 0 auto" onclick="this.closest('.slot-row').remove()">✕</button>
-  </div>`;
-}
-function addSlotRow(){const w=document.getElementById('slotEdit');const div=document.createElement('div');div.innerHTML=slotRow({season:activeSeason()});w.appendChild(div.firstElementChild);}
-function saveClient(id){
-  if(!requireUser())return;
-  const name=document.getElementById('c_name').value.trim();
-  if(!name){toast('Name required');return;}
-  const type=document.getElementById('c_type').value;
-  const phone=document.getElementById('c_phone').value.trim();
-  let c;
-  if(id){c=client(id);c.name=name;c.type=type;c.phone=phone;c.color=selectedColor;}
-  else{c={id:uid(),name,type,phone,color:selectedColor||nextColor()};state.clients.push(c);logEvent(`Added client ${name}`);}
-  // rebuild slots for this client from the editor
-  if(id&&document.getElementById('slotEdit')){
-    state.regulars=state.regulars.filter(r=>r.clientId!==id);
-    document.querySelectorAll('#slotEdit .slot-row').forEach(row=>{
-      const wd=parseInt(row.querySelector('.s_day').value,10);
-      const[h,m]=row.querySelector('.s_time').value.split(':').map(Number);
-      const dur=parseInt(row.querySelector('.s_dur').value,10);
-      const season=row.querySelector('.s_season').value;
-      state.regulars.push({id:row.dataset.id||uid(),clientId:id,weekday:wd,startMin:h*60+m,durationMin:dur,startDate:ds(new Date()),endDate:null,season});
-    });
-    logEvent(`Updated ${name}'s weekly slots`);
-  }
-  save();closeModal();renderClients();renderSchedule();renderAnalytics();toast('Saved');
-}
-function deleteClient(id){
-  const c=client(id);
-  if(!confirm(`Delete ${c.name} and all their lessons? This can't be undone.`))return;
-  state.clients=state.clients.filter(x=>x.id!==id);
-  state.regulars=state.regulars.filter(r=>r.clientId!==id);
-  state.oneoffs=state.oneoffs.filter(o=>o.clientId!==id);
-  state.holidays=state.holidays.filter(h=>h.clientId!==id);
-  logEvent(`Deleted client ${c.name}`);
-  save();closeModal();renderClients();renderSchedule();renderAnalytics();
-}
-function addHoliday(id){
-  const c=client(id);
-  openModal(`
-    <div class="modal-head">Holiday · ${c.name}<button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint">Their regular slots are freed automatically during this range so others can book them.</div>
-      <div class="row">
-        <label class="field">From<input type="date" id="h_start" value="${ds(new Date())}"></label>
-        <label class="field">To<input type="date" id="h_end" value="${ds(new Date())}"></label>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
-      <button class="btn" onclick="saveHoliday('${id}')">Add holiday</button>
-    </div>`);
-}
-function saveHoliday(id){
-  if(!requireUser())return;
-  const s=document.getElementById('h_start').value,e=document.getElementById('h_end').value;
-  if(!s||!e||e<s){toast('Check the dates');return;}
-  state.holidays.push({id:uid(),clientId:id,start:s,end:e});
-  logEvent(`Marked ${clientName(id)} away ${s} → ${e}`);
-  save();closeModal();renderClients();renderSchedule();toast('Holiday added');
-}
-
-/* ========================================================
-   ANALYTICS
-   ======================================================== */
-function renderAnalytics(){
-  const days=state.coach.days.length;
-  const availPerWeek=days*(state.coach.close-state.coach.open);
-  const bookedPerWeek=state.regulars.reduce((s,r)=>s+r.durationMin/60,0);
-  const util=availPerWeek?Math.round(bookedPerWeek/availPerWeek*100):0;
-  const regulars=state.clients.filter(c=>c.type==='regular').length;
-  const cards=[
-    {n:state.clients.length,l:'Clients'},
-    {n:bookedPerWeek.toFixed(1)+'h',l:'Booked / week'},
-    {n:util+'%',l:'Coach utilisation'},
-    {n:(availPerWeek-bookedPerWeek).toFixed(1)+'h',l:'Open / week'},
-  ];
-  document.getElementById('statCards').innerHTML=cards.map(c=>`<div class="panel" style="margin:0"><div class="stat">${c.n}</div><div class="stat-label">${c.l}</div></div>`).join('');
-
-  const rows=state.clients.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{
-    const slots=state.regulars.filter(r=>r.clientId===c.id);
-    const hrs=slots.reduce((s,r)=>s+r.durationMin/60,0);
-    const when=slots.length?slots.map(s=>`${DOW[s.weekday]} ${fmtTime(s.startMin)}`).join(', '):'<span class="muted">No standing slot</span>';
-    return `<tr>
-      <td><b style="color:var(--mple)">${c.name}</b></td>
-      <td><span class="pill ${c.type}">${c.type==='casual'?'Casual':'Regular'}</span></td>
-      <td>${hrs?hrs.toFixed(1)+'h':'—'}</td>
-      <td>${slots.length||'—'}</td>
-      <td>${when}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('analyticRows').innerHTML=rows||`<tr><td colspan="5"><div class="empty-state">No data yet.</div></td></tr>`;
-}
-
-/* ========================================================
-   NOTES
-   ======================================================== */
-function renderNotes(){
-  const list=document.getElementById('noteList');
-  if(!state.notes.length){list.innerHTML=`<div class="empty-state">No notes. Leave one for the next person on the desk.</div>`;}
-  else{
-    list.innerHTML=state.notes.map(n=>`
-      <div class="note ${n.read?'':'unread'}" onclick="toggleNote('${n.id}')">
-        <div class="meta"><b>${n.author}</b><span>${fmtStamp(n.ts)} ${n.read?'':'· unread'}</span></div>
-        <div>${escapeHtml(n.text)}</div>
-        <div style="text-align:right;margin-top:6px"><button class="btn ghost sm" onclick="event.stopPropagation();deleteNote('${n.id}')">Delete</button></div>
-      </div>`).join('');
-  }
-  const unread=state.notes.filter(n=>!n.read).length;
-  document.getElementById('noteBadge').textContent=unread?`(${unread})`:'';
-}
-function addNote(){
-  if(!requireUser())return;
-  const t=document.getElementById('noteText').value.trim();
-  if(!t)return;
-  state.notes.unshift({id:uid(),author:state.currentUser,text:t,ts:now(),read:false});
-  document.getElementById('noteText').value='';
-  save();renderNotes();toast('Note posted');
-}
-function toggleNote(id){const n=state.notes.find(x=>x.id===id);if(n){n.read=!n.read;save();renderNotes();}}
-function deleteNote(id){state.notes=state.notes.filter(n=>n.id!==id);save();renderNotes();}
-function escapeHtml(s){return s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-
-/* ========================================================
-   ACTIVITY
-   ======================================================== */
-function renderLog(){
-  const l=document.getElementById('logList');
-  if(!state.log.length){l.innerHTML=`<div class="empty-state">No activity yet.</div>`;return;}
-  l.innerHTML=state.log.map(e=>`<div class="log-row"><time>${fmtStamp(e.ts)}</time><div><b style="color:var(--mple)">${e.author}</b> · ${escapeHtml(e.text)}</div></div>`).join('');
-}
-
-/* ========================================================
-   SETTINGS
-   ======================================================== */
-function renderSettings(){
-  document.getElementById('setCoach').value=state.coach.name;
-  const o=document.getElementById('setOpen'),c=document.getElementById('setClose');
-  o.innerHTML=c.innerHTML='';
-  for(let h=5;h<=22;h++){o.innerHTML+=`<option value="${h}" ${h===state.coach.open?'selected':''}>${fmtTime(h*60)}</option>`;}
-  for(let h=6;h<=23;h++){c.innerHTML+=`<option value="${h}" ${h===state.coach.close?'selected':''}>${fmtTime(h*60)}</option>`;}
-  document.getElementById('setDays').innerHTML=DOW.map((d,i)=>`<label class="chk" style="background:var(--foam);padding:6px 10px;border-radius:var(--r);border:1px solid var(--line)"><input type="checkbox" class="d_chk" value="${i}" ${state.coach.days.includes(i)?'checked':''}> ${d}</label>`).join('');
-  renderSeasonMonths();
-  renderStaff();
-}
-function renderSeasonMonths(){
-  const wrap=document.getElementById('seasonMonths');if(!wrap)return;
-  const summer=(state.seasons&&state.seasons.summerMonths)||[];
-  wrap.innerHTML=MONTHS.map((m,i)=>{
-    const mn=i+1, isSummer=summer.includes(mn);
-    const bg=isSummer?'#B8862A':'#2C4A6E';
-    return `<button type="button" onclick="toggleSeasonMonth(${mn})" style="padding:8px 0;border:none;border-radius:var(--r);background:${bg};color:var(--foam);font-size:12px;font-weight:500;cursor:pointer">${m}</button>`;
-  }).join('');
-}
-function toggleSeasonMonth(mn){
-  if(!state.seasons)state.seasons={summerMonths:[]};
-  const arr=state.seasons.summerMonths||(state.seasons.summerMonths=[]);
-  const i=arr.indexOf(mn);
-  if(i>=0)arr.splice(i,1); else arr.push(mn);
-  state.seasons.summerMonths=arr.slice().sort((a,b)=>a-b);
-  save();renderSeasonMonths();renderSchedule();
-}
-function saveSettings(){
-  state.coach.name=document.getElementById('setCoach').value.trim()||'Coach';
-  state.coach.open=parseInt(document.getElementById('setOpen').value,10);
-  state.coach.close=parseInt(document.getElementById('setClose').value,10);
-  const days=[...document.querySelectorAll('.d_chk:checked')].map(x=>parseInt(x.value,10));
-  state.coach.days=days.length?days:[1,2,3,4,5,6];
-  if(state.coach.close<=state.coach.open){toast('Close must be after open');return;}
-  save();renderSchedule();renderAnalytics();toast('Settings saved');
-}
-function renderStaff(){
-  document.getElementById('staffList').innerHTML=state.staff.map(s=>`<span class="pill" style="background:var(--shell);color:var(--mple)">${s} <button onclick="removeStaff('${s}')" style="background:none;border:none;color:var(--bronze);cursor:pointer">✕</button></span>`).join('');
-  const sel=document.getElementById('userSelect');
-  sel.innerHTML=state.staff.map(s=>`<option ${s===state.currentUser?'selected':''}>${s}</option>`).join('');
-}
-function addStaff(){
-  const v=document.getElementById('newStaff').value.trim();
-  if(!v)return;
-  if(!state.staff.includes(v))state.staff.push(v);
-  document.getElementById('newStaff').value='';
-  if(!state.currentUser)state.currentUser=v;
-  save();renderStaff();
-}
-function removeStaff(s){
-  state.staff=state.staff.filter(x=>x!==s);
-  if(state.currentUser===s)state.currentUser=state.staff[0]||'';
-  save();renderStaff();
-}
-
-/* ---------- backup ---------- */
-function exportData(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`racket-schedule-${ds(new Date())}.json`;a.click();
-}
-function importData(file){
-  const r=new FileReader();
-  r.onload=()=>{try{state=Object.assign(defaultState(),JSON.parse(r.result));save();renderAll();toast('Data imported');}catch(e){toast('Invalid file');}};
-  r.readAsText(file);
-}
-
-/* ========================================================
-   TABS / WIRING
-   ======================================================== */
-function switchTab(tab){
-  if(tab!=='schedule')prefill=null;
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+tab).classList.add('active');
-  if(tab==='clients')renderClients();
-  if(tab==='waitlist')renderWaitlist();
-  if(tab==='analytics')renderAnalytics();
-  if(tab==='notes')renderNotes();
-  if(tab==='activity')renderLog();
-  if(tab==='settings')renderSettings();
-}
-function renderAll(){renderSchedule();renderClients();renderWaitlist();renderAnalytics();renderNotes();renderLog();renderSettings();}
-
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
-
-document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-document.getElementById('viewWeek').addEventListener('click',()=>{view='week';cursor=startOfWeek(cursor);document.getElementById('viewWeek').classList.add('active');document.getElementById('viewDay').classList.remove('active');renderSchedule();});
-document.getElementById('viewDay').addEventListener('click',()=>{view='day';document.getElementById('viewDay').classList.add('active');document.getElementById('viewWeek').classList.remove('active');renderSchedule();});
-document.getElementById('prevBtn').addEventListener('click',()=>{cursor=addDays(cursor,view==='week'?-7:-1);renderSchedule();});
-document.getElementById('nextBtn').addEventListener('click',()=>{cursor=addDays(cursor,view==='week'?7:1);renderSchedule();});
-document.getElementById('todayBtn').addEventListener('click',()=>{cursor=view==='week'?startOfWeek(new Date()):new Date();renderSchedule();});
-document.getElementById('jumpDate').addEventListener('change',e=>{const d=pd(e.target.value);cursor=view==='week'?startOfWeek(d):d;renderSchedule();});
-document.getElementById('showOpen').addEventListener('change',renderSchedule);
-document.getElementById('availMin').addEventListener('change',renderSchedule);
-document.getElementById('addBreakBtn').addEventListener('click',openAddBreakModal);
-document.getElementById('addClientBtn').addEventListener('click',()=>editClient(null));
-document.getElementById('addWaitBtn').addEventListener('click',openAddWaitModal);
-document.getElementById('addNoteBtn').addEventListener('click',addNote);
-document.getElementById('saveSettings').addEventListener('click',saveSettings);
-document.getElementById('addStaffBtn').addEventListener('click',addStaff);
-document.getElementById('userSelect').addEventListener('change',e=>{state.currentUser=e.target.value;save();});
-document.getElementById('exportBtn').addEventListener('click',exportData);
-document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files[0])importData(e.target.files[0]);});
-document.getElementById('syncBtn').addEventListener('click',syncNow);
-if(!API_URL)document.getElementById('syncBtn').style.display='none';
-
-/* ---------- seed a tiny demo (local-only mode, first run) ---------- */
-if(!API_ && !state.clients.length && !localStorage.getItem(KEY)){
-  state.staff=['Reception'];state.currentUser='Reception';
-  const a={id:uid(),name:'Andreas P.',type:'regular',phone:'',color:PALETTE[0]};
-  const m={id:uid(),name:'Maria K.',type:'regular',phone:'',color:PALETTE[2]};
-  const g={id:uid(),name:'Guest (casual)',type:'casual',phone:'',color:PALETTE[4]};
-  state.clients.push(a,m,g);
-  const base=ds(new Date());
-  state.regulars.push(
-    {id:uid(),clientId:a.id,weekday:2,startMin:17*60,durationMin:60,startDate:base,endDate:null},
-    {id:uid(),clientId:a.id,weekday:4,startMin:17*60,durationMin:60,startDate:base,endDate:null},
-    {id:uid(),clientId:m.id,weekday:3,startMin:10*60,durationMin:90,startDate:base,endDate:null}
-  );
-  state.coach.days.forEach(wd=>state.breaks.push({id:uid(),recurring:true,weekday:wd,startMin:13*60,durationMin:60,label:'Lunch',startDate:base,endDate:null}));
-  logEvent('Started the schedule');
-  save();
-}
-
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));document.getElementById('syncBtn').onclick=syncNow;document.getElementById('dashSync').onclick=syncNow;document.getElementById('settingsSync').onclick=syncNow;document.getElementById('refreshBtn').onclick=refreshOnly;document.getElementById('userSelect').onchange=e=>{state.currentUser=e.target.value;cache()};document.getElementById('viewWeek').onclick=()=>{view='week';cursor=startOfWeek(cursor);document.getElementById('viewWeek').classList.add('active');document.getElementById('viewDay').classList.remove('active');renderSchedule()};document.getElementById('viewDay').onclick=()=>{view='day';document.getElementById('viewDay').classList.add('active');document.getElementById('viewWeek').classList.remove('active');renderSchedule()};document.getElementById('prevBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?-7:-1);renderSchedule()};document.getElementById('nextBtn').onclick=()=>{cursor=addDays(cursor,view==='week'?7:1);renderSchedule()};document.getElementById('todayBtn').onclick=()=>{cursor=view==='week'?startOfWeek(new Date()):new Date();renderSchedule()};document.getElementById('jumpDate').onchange=e=>{const d=pd(e.target.value);cursor=view==='week'?startOfWeek(d):d;renderSchedule()};document.getElementById('showOpen').onchange=renderSchedule;document.getElementById('availMin').onchange=renderSchedule;document.getElementById('addBreakBtn').onclick=addBreak;document.getElementById('addClientBtn').onclick=()=>editClient(null);document.getElementById('addWaitBtn').onclick=addWaitModal;document.getElementById('waitFilter').onchange=renderWaitlist;document.getElementById('waitSort').onchange=renderWaitlist;document.getElementById('addNoteBtn').onclick=addNote;document.getElementById('saveSettings').onclick=saveSettings;document.getElementById('addStaffBtn').onclick=addStaff;document.getElementById('exportBtn').onclick=exportData;document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').onchange=e=>e.target.files[0]&&importData(e.target.files[0]);
 renderAll();
-startSync();
+// Pull once on opening, but NEVER overwrite local edits. No periodic writes.
+(async()=>{try{if(!dirtyOps){const data=await api('read',{}),cu=state.currentUser;TABLES.forEach(t=>state[t]=Array.isArray(data[t])?data[t]:[]);if(data.coach)state.coach=data.coach;if(data.staff)state.staff=data.staff;if(data.seasons)state.seasons=data.seasons;state.currentUser=cu;lastSynced=snapshot();cache();renderAll();setSyncStatus('clean')}else setSyncStatus('dirty')}catch(e){setSyncStatus(dirtyOps?'dirty':'offline')}})();
 </script>
-</body>
-</html>
+</body></html>
